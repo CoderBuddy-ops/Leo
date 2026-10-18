@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leo</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <style>
+      :root {
+        --bg-capsule: linear-gradient(145deg, rgba(16, 18, 26, 0.96) 0%, rgba(8, 9, 13, 0.98) 100%);
+        --border-capsule: rgba(249, 115, 22, 0.28);
+        --border-subtle: rgba(255, 255, 255, 0.08);
+        --bg-input: rgba(255, 255, 255, 0.05);
+        --bg-hover: rgba(255, 255, 255, 0.09);
+        --text-primary: #FAF5FF;
+        --text-muted: #A3A8B8;
+        --accent-copper: #F97316;
+        --accent-copper-hover: #FB923C;
+        --accent-copper-glow: rgba(249, 115, 22, 0.35);
+        --accent-cyan: #38BDF8;
+        --accent-lavender: #A78BFA;
+        --accent-green: #22C55E;
+        --accent-amber: #F59E0B;
+        --accent-red: #EF4444;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        user-select: none;
+      }
+
+      *:focus-visible {
+        outline: 2px solid var(--accent-cyan);
+        outline-offset: 2px;
+      }
+
+      html,
+      body {
+        background: transparent !important;
+        background-color: transparent !important;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI Variable Display', 'Segoe UI', Inter, -apple-system, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100vh;
+        color: var(--text-primary);
+      }
+
+      .capsule {
+        background: var(--bg-capsule);
+        border: 1px solid var(--border-capsule);
+        border-radius: 28px;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 16px rgba(249, 115, 22, 0.12);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        display: flex;
+        flex-direction: column;
+        width: 340px;
+        transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), height 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+      }
+
+      /* Top Header Pill */
+      .header {
+        display: flex;
+        align-items: center;
+        padding: 10px 14px;
+        height: 72px;
+        cursor: grab;
+      }
+
+      .header:active {
+        cursor: grabbing;
+      }
+
+      .face-container {
+        width: 60px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        transition: transform 0.15s ease;
+      }
+
+      .face-container:hover {
+        transform: scale(1.05);
+      }
+
+      canvas {
+        width: 60px;
+        height: 48px;
+      }
+
+      .header-info {
+        flex: 1;
+        margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .header-title-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .header-title-row h1 {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--text-primary);
+      }
+
+      .egress-badge {
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px 7px;
+        border-radius: 10px;
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--accent-green);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid rgba(34, 197, 94, 0.25);
+      }
+
+      .egress-badge.cloud {
+        background: rgba(245, 158, 11, 0.18);
+        color: var(--accent-amber);
+        border-color: rgba(245, 158, 11, 0.3);
+      }
+
+      .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .header-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+
+      /* Navigation Tabs */
+      .nav-tabs {
+        display: flex;
+        gap: 4px;
+        margin-left: 6px;
+      }
+
+      .tab-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+        padding: 5px 8px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .tab-btn:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+      }
+
+      .tab-btn.active {
+        background: rgba(249, 115, 22, 0.16);
+        color: var(--accent-copper-hover);
+        border-color: rgba(249, 115, 22, 0.35);
+      }
+
+      /* Drawer Content Panes */
+      .drawer-body {
+        padding: 14px;
+        border-top: 1px solid var(--border-subtle);
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .drawer-body.active {
+        display: flex;
+      }
+
+      /* Dictation Pane */
+      .dictate-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .mic-button {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--accent-copper);
+        border: none;
+        color: #FFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 14px var(--accent-copper-glow);
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+
+      .mic-button:hover {
+        transform: scale(1.05);
+        background: var(--accent-copper-hover);
+      }
+
+      .mic-button.active {
+        background: var(--accent-red);
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
+      }
+
+      .level-meter-container {
+        flex: 1;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .level-bar {
+        height: 100%;
+        width: 0%;
+        background: var(--accent-cyan);
+        transition: width 0.05s linear;
+      }
+
+      .transcript-box {
+        background: var(--bg-input);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        min-height: 64px;
+        max-height: 100px;
+        overflow-y: auto;
+        color: var(--text-primary);
+        word-break: break-word;
+      }
+
+      .transcript-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      .action-btn {
+        background: var(--bg-input);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .action-btn:hover {
+        background: var(--bg-hover);
+        border-color: rgba(255, 255, 255, 0.15);
+      }
+
+      .action-btn.primary {
+        background: var(--accent-copper);
+        border-color: var(--accent-copper);
+        color: #FFFFFF;
+      }
+
+      .action-btn.primary:hover {
+        background: var(--accent-copper-hover);
+      }
+
+      /* Chat Pane */
+      .chat-output {
+        background: var(--bg-input);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        min-height: 120px;
+        max-height: 160px;
+        overflow-y: auto;
+        word-break: break-word;
+      }
+
+      .chat-input-row {
+        display: flex;
+        gap: 8px;
+      }
+
+      .chat-input {
+        flex: 1;
+        background: var(--bg-input);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 12px;
+        color: var(--text-primary);
+        outline: none;
+      }
+
+      .chat-input:focus {
+        border-color: var(--accent-cyan);
+      }
+
+      /* Settings Pane */
+      .settings-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .settings-row label {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .settings-select {
+        background: #14161E;
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        color: var(--text-primary);
+        padding: 6px 8px;
+        font-size: 12px;
+        outline: none;
+      }
+
+      .asr-download-card {
+        background: var(--bg-input);
+        border: 1px solid var(--border-subtle);
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 11px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .progress-bar-bg {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: var(--accent-copper);
+        transition: width 0.1s ease;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .capsule, .level-bar, .progress-bar-fill, .tab-btn, .face-container {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="capsule" id="capsule">
+      <!-- Top Capsule Header -->
+      <div class="header" id="header" data-tauri-drag-region>
+        <div class="face-container" id="face-container" title="Leo (Click to interact)" tabindex="0" role="button" aria-label="Interact with Leo">
+          <canvas id="leo-canvas" width="120" height="96"></canvas>
+        </div>
+        <div class="header-info" data-tauri-drag-region>
+          <div class="header-title-row">
+            <h1>Leo</h1>
+            <span class="egress-badge" id="egress-badge">
+              <span class="dot"></span>
+              <span id="egress-text">Local</span>
+            </span>
+          </div>
+          <p class="header-sub" id="status-sub">Ready &bull; Space to talk</p>
+        </div>
+        <nav class="nav-tabs" aria-label="Leo Modes">
+          <button class="tab-btn active" data-tab="compact" title="Companion View">Mini</button>
+          <button class="tab-btn" data-tab="dictate" title="Dictation">Voice</button>
+          <button class="tab-btn" data-tab="chat" title="AI Query">Chat</button>
+          <button class="tab-btn" data-tab="settings" title="Settings">⚙</button>
+        </nav>
+      </div>
+
+      <!-- Dictation Drawer -->
+      <div class="drawer-body" id="drawer-dictate">
+        <div class="dictate-controls">
+          <button class="mic-button" id="mic-btn" title="Toggle Push-to-Talk (Space)" aria-label="Push to talk">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+          </button>
+          <div class="level-meter-container" title="Audio Level Meter">
+            <div class="level-bar" id="level-bar"></div>
+          </div>
+        </div>
+        <div class="transcript-box" id="transcript-box" tabindex="0">
+          Click the mic or press Space to dictate. Speech will be cleaned of verbal fillers automatically.
+        </div>
+        <div class="transcript-actions">
+          <button class="action-btn" id="clean-sample-btn">Demo Speech</button>
+          <button class="action-btn" id="copy-btn">Copy</button>
+          <button class="action-btn primary" id="paste-btn">Paste to App</button>
+        </div>
+      </div>
+
+      <!-- Chat Drawer -->
+      <div class="drawer-body" id="drawer-chat">
+        <div class="chat-output" id="chat-output" tabindex="0">
+          Ask Leo anything. Model response will stream here.
+        </div>
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="chat-prompt" placeholder="Type prompt & press Enter..." aria-label="Chat input" />
+          <button class="action-btn primary" id="send-chat-btn">Send</button>
+          <button class="action-btn" id="cancel-chat-btn" style="display: none;">Stop</button>
+        </div>
+      </div>
+
+      <!-- Settings Drawer -->
+      <div class="drawer-body" id="drawer-settings">
+        <div class="settings-row">
+          <label for="model-provider-select">Model Provider</label>
+          <select id="model-provider-select" class="settings-select">
+            <option value="http://127.0.0.1:11434/v1">Ollama Local (127.0.0.1:11434)</option>
+            <option value="http://localhost:1234/v1">LM Studio Local (localhost:1234)</option>
+            <option value="https://api.openai.com/v1">OpenAI Cloud (Egress Warning)</option>
+            <option value="https://api.anthropic.com/v1">Claude Cloud (Egress Warning)</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label>Offline Speech Recognition Model</label>
+          <div class="asr-download-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <strong>Parakeet-TDT 0.6B (680 MB)</strong>
+              <span id="asr-status-text" style="color: var(--text-muted);">Not Downloaded</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="asr-progress-fill"></div>
+            </div>
+            <div style="display: flex; gap: 6px; margin-top: 4px;">
+              <button class="action-btn primary" id="download-asr-btn">Download Offline Weights</button>
+              <button class="action-btn" id="cancel-asr-btn" style="display: none;">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

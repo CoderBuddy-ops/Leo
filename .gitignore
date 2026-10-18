@@ -1,0 +1,19 @@
+# Upstream reference clone (not product source)
+reference_coucou/
+
+# Dependencies
+node_modules/
+dist/
+app/dist/
+
+# Rust build artifacts
+target/
+src-tauri/target/
+app/src-tauri/target/
+app/src-tauri/gen/
+
+# Local configuration and caches
+.env
+*.log
+.DS_Store
+Thumbs.db
