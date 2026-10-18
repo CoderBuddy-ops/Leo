@@ -53,14 +53,13 @@ const FRAME = {
   look: { x: 0, y: 0 }, // idle look vector
   glowR: 24,
   glowAlpha: 0.42, // idle 0.30, modestly boosted for icon presence
-  // Cute icon-only additions:
-  mouth: { x: 60, y: 63, r: 7, thick: 2.4 }, // smile arc (cream)
-  blush: { dl: 34, y: 59, rx: 6, ry: 4, alpha: 0.22 }, // cheeks beside/below eyes
+  // Cute icon-only additions: subtle, symmetrical soft pink blush marks on each side:
+  blush: { dl: 32, y: 56, rx: 6.5, ry: 4.2, alpha: 0.28 }, // cheeks beside/below eyes
 };
 
 const PALETTE = {
   cream: [250, 245, 255],
-  blush: [249, 113, 122],
+  blush: [250, 128, 146], // soft, subtle pastel pink blush
   copper: [249, 115, 22],
   charcoal: [21, 23, 31], // capsule gradient light end
   void: [10, 11, 16], // capsule gradient dark end, lifted for visibility
@@ -102,12 +101,7 @@ function renderMaster(size = 1024) {
   const crm = PALETTE.cream;
   const blu = PALETTE.blush;
 
-  // Cute face geometry (icon-only warmth, built on the same face mapping).
-  const mth = FRAME.mouth;
-  const mX = discC + (mth.x - FRAME.face.cx) * s;
-  const mY = discY + (mth.y - FRAME.face.cy) * s;
-  const mR = mth.r * s;
-  const mHalf = (mth.thick * 0.5) * s;
+  // Subtle symmetrical cheek blush geometry (soft pink glow beside/under eyes).
   const bXl = discC - FRAME.blush.dl * s;
   const bXr = discC + FRAME.blush.dl * s;
   const bY = discY + (FRAME.blush.y - FRAME.face.cy) * s;
@@ -180,29 +174,14 @@ function renderMaster(size = 1024) {
       g = g * (1 - eyeCov) + crm[1] * eyeCov;
       b = b * (1 - eyeCov) + crm[2] * eyeCov;
 
-      // Soft blush ellipses under the eyes (cute cheek tint).
+      // Symmetrical, subtle, soft pink blush mark on each side of the face.
       const dbl = ((px - bXl) / bRx) ** 2 + ((py - bY) / bRy) ** 2;
       const dbr = ((px - bXr) / bRx) ** 2 + ((py - bY) / bRy) ** 2;
       const qc = Math.min(Math.sqrt(dbl), Math.sqrt(dbr));
-      const blushCov = (1 - smoothstep(0.7, 1.05, qc)) * blushA;
+      const blushCov = (1 - smoothstep(0.4, 1.05, qc)) * blushA;
       r = r * (1 - blushCov) + blu[0] * blushCov;
       g = g * (1 - blushCov) + blu[1] * blushCov;
       b = b * (1 - blushCov) + blu[2] * blushCov;
-
-      // Cute little smile: a stroked lower arc centred above the mouth line.
-      const mdx = px - mX;
-      const mdyRaw = py - mY;
-      const mdy = mdyRaw - mR; // distance to the arc's centre point
-      const md = Math.sqrt(mdx * mdx + mdy * mdy);
-      // Only the lower semicircle (mdyRaw >= mY) forms the smile; ends taper.
-      const mAngle = Math.atan2(mdyRaw, mdx); // 0..PI on the lower arc
-      const tEnd = 1 - smoothstep(0.7, 0.95, Math.abs(mAngle - Math.PI / 2) / (Math.PI / 2));
-      const mouthBand = 1 - smoothstep(mHalf * 0.75, mHalf * 1.1, Math.abs(md - mR));
-      // mdyRaw is the offset BELOW the mouth line; only the lower arc smiles.
-      const mouthCov = mdyRaw >= 0 ? mouthBand * tEnd : 0;
-      r = r * (1 - mouthCov) + crm[0] * mouthCov;
-      g = g * (1 - mouthCov) + crm[1] * mouthCov;
-      b = b * (1 - mouthCov) + crm[2] * mouthCov;
 
       data[o] = r;
       data[o + 1] = g;
