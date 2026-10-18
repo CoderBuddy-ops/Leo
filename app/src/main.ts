@@ -3,7 +3,7 @@ import { LeoGestureController } from "../../src/companion/gestures.ts";
 import { VoiceActivityDetector } from "../../src/voice/audio_vad.ts";
 import { OfflineASRPipeline } from "../../src/voice/offline_asr.ts";
 import { SpeechCleanupFilter } from "../../src/voice/speech_cleanup.ts";
-import { LocalModelClient } from "../../src/models/local_client.ts";
+import { AIProviderManager, type ProviderType } from "../../src/models/ai_provider.ts";
 import { LeoIPCBridge } from "../../src/ipc/leo_ipc.ts";
 
 // DOM Element Handles
@@ -30,20 +30,39 @@ const sendChatBtn = document.getElementById("send-chat-btn") as HTMLButtonElemen
 const cancelChatBtn = document.getElementById("cancel-chat-btn") as HTMLButtonElement;
 
 const modelSelect = document.getElementById("model-provider-select") as HTMLSelectElement;
+const geminiSettingsCard = document.getElementById("gemini-settings-card") as HTMLDivElement;
+const geminiApiKeyInput = document.getElementById("gemini-api-key") as HTMLInputElement;
+const toggleKeyVisibilityBtn = document.getElementById("toggle-key-visibility") as HTMLButtonElement;
+const geminiModelSelect = document.getElementById("gemini-model-select") as HTMLSelectElement;
+const saveGeminiKeyBtn = document.getElementById("save-gemini-key-btn") as HTMLButtonElement;
+const testGeminiBtn = document.getElementById("test-gemini-btn") as HTMLButtonElement;
+const clearGeminiKeyBtn = document.getElementById("clear-gemini-key-btn") as HTMLButtonElement;
+const geminiStatusText = document.getElementById("gemini-status-text") as HTMLDivElement;
+
+const usageActiveModel = document.getElementById("usage-active-model") as HTMLSpanElement;
+const usageQueriesCount = document.getElementById("usage-queries-count") as HTMLSpanElement;
+const usageTokensCount = document.getElementById("usage-tokens-count") as HTMLSpanElement;
+
 const downloadAsrBtn = document.getElementById("download-asr-btn") as HTMLButtonElement;
 const cancelAsrBtn = document.getElementById("cancel-asr-btn") as HTMLButtonElement;
 const asrStatusText = document.getElementById("asr-status-text") as HTMLSpanElement;
 const asrProgressFill = document.getElementById("asr-progress-fill") as HTMLDivElement;
+
+// Initialize Stored Credentials & Provider Manager
+const KEY_STORAGE_NAME = "leo_gemini_api_key_v1";
+const PROVIDER_STORAGE_NAME = "leo_provider_type_v1";
+const storedKey = localStorage.getItem(KEY_STORAGE_NAME) || "";
+const storedProvider = (localStorage.getItem(PROVIDER_STORAGE_NAME) as ProviderType) || "ollama";
+
+const providerManager = new AIProviderManager(storedProvider, storedKey);
+if (modelSelect) modelSelect.value = storedProvider;
+if (geminiApiKeyInput && storedKey) geminiApiKeyInput.value = storedKey;
 
 // Initialize Core Engines
 const engine = new LeoCharacterEngine(42);
 const gestures = new LeoGestureController(engine, { inactivityTimeoutMs: 60000 });
 const vad = new VoiceActivityDetector();
 const asr = new OfflineASRPipeline();
-const modelClient = new LocalModelClient({
-  endpointUrl: modelSelect ? modelSelect.value : "http://127.0.0.1:11434/v1",
-  modelName: "qwen-3.5-2b",
-});
 
 let isRecording = false;
 let audioLevelInterval: number | null = null;
@@ -205,7 +224,7 @@ tabButtons.forEach((btn) => {
       const targetDrawer = document.getElementById(`drawer-${tabName}`);
       if (targetDrawer) {
         targetDrawer.classList.add("active");
-        const height = tabName === "chat" ? 320 : tabName === "settings" ? 280 : 250;
+        const height = tabName === "chat" ? 320 : tabName === "settings" ? 430 : 250;
         LeoIPCBridge.execute({ command: "set_window_size", width: 400, height }).catch(() => {});
       }
     }
@@ -278,6 +297,22 @@ pasteBtn?.addEventListener("click", async () => {
 
 // 5. Chat Query & Streaming Output
 let activeChatAbort: AbortController | null = null;
+const conversationHistory: Array<{ role: "system" | "user" | "assistant"; content: string }> = [];
+
+const updateUsageDashboard = () => {
+  const usage = providerManager.getUsage();
+  if (usageActiveModel) {
+    usageActiveModel.textContent = `${providerManager.providerType.toUpperCase()} / ${providerManager.activeModelName}`;
+  }
+  if (usageQueriesCount) {
+    usageQueriesCount.textContent = String(usage.totalRequests);
+  }
+  if (usageTokensCount) {
+    usageTokensCount.textContent = providerManager.isLocal
+      ? "Local (Zero Egress)"
+      : `${usage.totalTokens} tokens`;
+  }
+};
 
 const sendChat = async () => {
   const prompt = chatPrompt.value.trim();
@@ -295,29 +330,40 @@ const sendChat = async () => {
 
   try {
     // Check if cloud egress applies
-    const isLocal = LocalModelClient.isLoopback(modelClient.endpointUrl);
-    if (!isLocal) {
-      chatOutput.innerHTML += `<div style="color: var(--accent-amber); font-size: 10px; margin-bottom: 6px;">[Leaves your PC: External API request]</div>`;
+    if (!providerManager.isLocal) {
+      chatOutput.innerHTML += `<div style="color: var(--accent-amber); font-size: 10px; margin-bottom: 6px;">[Leaves your PC: External Google Gemini Request]</div>`;
     }
-
-    // Stream simulated local token response
-    const mockWords = [
-      "Leo", "here!", "I'm", "running", "entirely", "on-device", "with", "zero",
-      "cloud", "dependencies", "for", "your", "audio", "and", "data.", "How", "can",
-      "I", "help", "you", "accelerate", "your", "Windows", "workflow", "today?"
-    ];
 
     gestures.setSpeaking(true);
-    for (const word of mockWords) {
-      if (activeChatAbort.signal.aborted) break;
-      chatOutput.innerHTML += word + " ";
-      chatOutput.scrollTop = chatOutput.scrollHeight;
-      await new Promise((r) => setTimeout(r, 80));
-    }
+    let streamedContent = "";
 
+    await providerManager.streamChat(
+      prompt,
+      conversationHistory,
+      (token) => {
+        if (activeChatAbort?.signal.aborted) return;
+        streamedContent += token;
+        const egressNotice = providerManager.isLocal
+          ? ""
+          : `<div style="color: var(--accent-amber); font-size: 10px; margin-bottom: 6px;">[Leaves your PC: External Google Gemini Request]</div>`;
+        chatOutput.innerHTML = egressNotice +
+          `<span style="color: var(--text-muted);">Prompt: ${prompt}</span><br><br>` +
+          streamedContent.replace(/\n/g, "<br>");
+        chatOutput.scrollTop = chatOutput.scrollHeight;
+      },
+      activeChatAbort.signal
+    );
+
+    conversationHistory.push({ role: "user", content: prompt });
+    conversationHistory.push({ role: "assistant", content: streamedContent });
+    if (conversationHistory.length > 10) conversationHistory.splice(0, 2);
+
+    updateUsageDashboard();
     statusSub.textContent = "Ready • Ctrl+Alt+Space";
   } catch (err: unknown) {
-    chatOutput.innerHTML += `<br><span style="color: var(--accent-red);">Error: ${(err as Error).message}</span>`;
+    const raw = err instanceof Error ? err.message : String(err);
+    chatOutput.innerHTML += `<br><span style="color: var(--accent-red);">Error: ${providerManager.getGeminiClient().redactSecret(raw)}</span>`;
+    statusSub.textContent = "Query failed";
   } finally {
     gestures.setProcessingPrompt(false);
     gestures.setSpeaking(false);
@@ -335,23 +381,84 @@ chatPrompt?.addEventListener("keydown", (e) => {
 
 // 6. Settings & Egress Badge Handling
 const updateEgressIndicator = () => {
-  const url = modelSelect.value;
-  modelClient.updateEndpoint(url);
-  const isLocal = LocalModelClient.isLoopback(url);
+  const selectedType = modelSelect.value as ProviderType;
+  providerManager.setProvider(selectedType);
+  localStorage.setItem(PROVIDER_STORAGE_NAME, selectedType);
 
-  if (isLocal) {
+  if (geminiSettingsCard) {
+    geminiSettingsCard.style.display = selectedType === "gemini" ? "flex" : "none";
+  }
+
+  if (providerManager.isLocal) {
     egressBadge.classList.remove("cloud");
     egressText.textContent = "Local";
     egressBadge.title = "Local-first: Audio & data remain strictly on your machine.";
   } else {
     egressBadge.classList.add("cloud");
     egressText.textContent = "Leaves PC";
-    egressBadge.title = "Warning: Prompt data leaves your computer to an external server.";
+    egressBadge.title = "Warning: Prompt data leaves your computer to Google Gemini.";
   }
+
+  updateUsageDashboard();
 };
 
 modelSelect?.addEventListener("change", updateEgressIndicator);
+
+// Gemini Credentials & Model Configuration
+toggleKeyVisibilityBtn?.addEventListener("click", () => {
+  if (geminiApiKeyInput.type === "password") {
+    geminiApiKeyInput.type = "text";
+  } else {
+    geminiApiKeyInput.type = "password";
+  }
+});
+
+geminiModelSelect?.addEventListener("change", () => {
+  providerManager.getGeminiClient().setModel(geminiModelSelect.value);
+  updateUsageDashboard();
+});
+
+saveGeminiKeyBtn?.addEventListener("click", () => {
+  const key = geminiApiKeyInput.value.trim();
+  providerManager.getGeminiClient().setApiKey(key);
+  localStorage.setItem(KEY_STORAGE_NAME, key);
+  geminiStatusText.textContent = key ? "Key saved locally." : "Key cleared.";
+  geminiStatusText.style.color = key ? "var(--accent-green)" : "var(--text-muted)";
+  updateUsageDashboard();
+});
+
+testGeminiBtn?.addEventListener("click", async () => {
+  const key = geminiApiKeyInput.value.trim();
+  providerManager.getGeminiClient().setApiKey(key);
+  geminiStatusText.textContent = "Testing connection...";
+  geminiStatusText.style.color = "var(--accent-cyan)";
+
+  const result = await providerManager.getGeminiClient().testConnection();
+  if (result.ok) {
+    geminiStatusText.textContent = result.message;
+    geminiStatusText.style.color = "var(--accent-green)";
+    localStorage.setItem(KEY_STORAGE_NAME, key);
+  } else {
+    geminiStatusText.textContent = result.message;
+    geminiStatusText.style.color = "var(--accent-red)";
+  }
+});
+
+clearGeminiKeyBtn?.addEventListener("click", () => {
+  providerManager.getGeminiClient().clearApiKey();
+  localStorage.removeItem(KEY_STORAGE_NAME);
+  geminiApiKeyInput.value = "";
+  geminiStatusText.textContent = "Key removed from local storage.";
+  geminiStatusText.style.color = "var(--text-muted)";
+  updateUsageDashboard();
+});
+
+// Initial Status Update
 updateEgressIndicator();
+if (storedKey) {
+  geminiStatusText.textContent = "Key configured.";
+  geminiStatusText.style.color = "var(--accent-green)";
+}
 
 // 7. Offline Model Download Handler
 downloadAsrBtn?.addEventListener("click", async () => {

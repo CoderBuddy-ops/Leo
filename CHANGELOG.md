@@ -4,6 +4,41 @@ All notable changes to **Leo** are documented in this file.
 
 ---
 
+## [0.1.0-alpha.6] - 2026-10-18
+
+### Added
+- **Official Windows NSIS Installer (`Leo-Setup-x64.exe`):**
+  - Generated lean, official 4.05 MB Windows installer via Tauri 2 and NSIS 3.13 (`Leo_0.1.0_x64-setup.exe`).
+  - Standard per-user installation into `%LOCALAPPDATA%\Programs\Leo` with Start Menu shortcut, Desktop shortcut, and Windows uninstaller metadata.
+  - Staged to `C:\Users\Yuvraj\Desktop\Leo-Setup-x64.exe` and `C:\Users\Yuvraj\Desktop\Leo-Release\Leo-Setup-x64.exe`.
+- **Google Gemini Online AI Client (`src/models/gemini_client.ts`):**
+  - Direct SSE streaming client supporting `gemini-2.5-flash`, `gemini-2.5-pro`, and `gemini-1.5-flash`.
+  - Secure credential handling: user API key stored locally in client storage, never logged or committed to Git.
+  - Automated secret redaction (`redactSecret()`) ensuring API keys are scrubbed from all error traces.
+- **Unified AI Provider Architecture (`src/models/ai_provider.ts`):**
+  - Supports Strict Offline Mode (blocks all cloud egress), Local Ollama, Local LM Studio, and Google Gemini.
+  - Real-time privacy badges: `Local` (green dot) vs `[Leaves your PC]` (amber warning badge).
+  - Integrated usage metrics dashboard displaying active model, session query counts, token usage, and privacy status.
+- **Canonical Release & Privacy Documentation:**
+  - `docs/release/BUILD_AND_INSTALL.md`: comprehensive build, install, uninstall, and size audit guide.
+  - `docs/security/PRIVACY.md`: strict zero audio egress invariants, key protection, and data flow architecture.
+- **Automated Test Expansion:**
+  - Added `tests/leo_providers.test.mjs` (6/6 passing tests).
+  - Total automated test suite: **31/31 passing tests (100%)** across all 4 test suites.
+
+### Changed
+- **Leo Icon V2 Refinement:**
+  - Preserved canonical backup at `assets/brand/leo-face-icon-1024.v2-original.png`.
+  - Removed mouth stroke from character face in `scripts/generate-leo-icon.mjs`.
+  - Added subtle, symmetrical soft pink blush marks on each side of the face (`PALETTE.blush = [250, 128, 146]`).
+  - Regenerated all Windows `.ico` sizes (256/128/64/48/32/16), PNG icons (512, 256, 128, 32), and web favicon.
+- **Definitive Fix for `ERR_CONNECTION_REFUSED` & Terminal Window:**
+  - Traced and eliminated legacy `scripts/launch-leo.bat` and `launch-leo.vbs` which launched Chrome `--app="http://localhost:1420"` and spawned console windows.
+  - Re-pointed desktop shortcut `C:\Users\Yuvraj\Desktop\Leo.lnk` directly to native `Leo.exe`.
+  - Verified production build embeds static assets (`frontendDist: "../dist"`), operating completely offline with zero localhost dependency.
+- **Fluidity & G² Curvature Styling:**
+  - Enhanced capsule styling with curvature-continuous squircle silhouette (`border-radius: 36px`), multi-layer glassmorphism blur, copper accretion highlights, and smooth state transitions.
+
 ## [0.1.0-alpha.5] - 2026-10-18
 
 ### Added

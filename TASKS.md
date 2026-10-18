@@ -58,13 +58,35 @@
   - Verified compilation of test binary (`hello.exe`) and successful `cargo check` across all 100+ native Tauri dependencies in 2m 10s.
 - [x] `TSK-050`: Install and verify UI/UX Pro Max design intelligence skill (`https://uupm.cc/`, `ui-ux-pro-max` v2.15.0) via official installer into `.agents/skills/` (7 design skills: `ui-ux-pro-max`, `brand`, `design`, `design-system`, `ui-styling`, `banner-design`, `slides`); verified local Python 3 queries for dark companion palettes, OLED styles, and motion accessibility.
 - [x] `TSK-051`: Install essential IDE development extensions (`rust-lang.rust-analyzer`, `tauri-apps.tauri-vscode`, `bradlc.vscode-tailwindcss`, `dbaeumer.vscode-eslint`, `esbenp.prettier-vscode`).
+- [x] `TSK-052`: Refine Leo Icon V2:
+  - Preserved original master backup at `assets/brand/leo-face-icon-1024.v2-original.png`.
+  - Removed mouth stroke and added symmetrical, subtle soft pink blush marks beside eyes in `scripts/generate-leo-icon.mjs`.
+  - Regenerated all Windows `.ico` sizes (256/128/64/48/32/16), PNG icons (512, 256, 128, 32), and web favicon; 8/8 icon determinism tests passing.
+- [x] `TSK-053`: Fix `ERR_CONNECTION_REFUSED`, terminal window, and localhost dependency:
+  - Removed Chrome `--app=localhost:1420` legacy launcher script.
+  - Re-pointed desktop shortcut `C:\Users\Yuvraj\Desktop\Leo.lnk` directly to native `Leo.exe`.
+  - Verified bundled static frontend (`frontendDist: "../dist"`), zero localhost dependency, and GUI subsystem (`#pragma windows_subsystem = "windows"`).
+- [x] `TSK-054`: Build official Windows NSIS Installer:
+  - Packaged `Leo_0.1.0_x64-setup.exe` (4.05 MB) via Tauri CLI + NSIS 3.13.
+  - Staged to `C:\Users\Yuvraj\Desktop\Leo-Setup-x64.exe` and `C:\Users\Yuvraj\Desktop\Leo-Release\Leo-Setup-x64.exe`.
+- [x] `TSK-055`: Implement Google Gemini Online AI & Unified Provider Architecture:
+  - Implemented SSE streaming client in `src/models/gemini_client.ts` with API key masking and secret redaction.
+  - Implemented `src/models/ai_provider.ts` supporting Strict Offline Mode, Local Ollama, LM Studio, and Google Gemini with usage reporting and privacy badges.
+  - Added unit test suite `tests/leo_providers.test.mjs` (6/6 passing).
+- [x] `TSK-056`: Author canonical release and privacy documentation:
+  - `docs/release/BUILD_AND_INSTALL.md`
+  - `docs/security/PRIVACY.md`
 
 ---
 
-## Next Up (Prioritized Checklist — 2026-10-18)
+## Verification & Test Metrics (100% Passing)
 
-1. **P0** — Resolve native C/C++ linker sysroot (awaiting user approval for Option 1 portable WinLibs vs Option 2 VS Build Tools).
-2. **P0** — Execute `cargo build --release` in `app/src-tauri` to produce native Windows `Leo.exe`.
-3. **P0** — Launch native `Leo.exe` and verify DWM transparency + always-on-top over active applications.
-4. **P0** — Deliver runnable package to `C:\Users\Yuvraj\Desktop\Leo-Release\`.
+- **Total Unit Tests:** **31 / 31 passing (100%)**
+  - `tests/leo_p0.test.mjs`: 7/7 passing
+  - `tests/leo_extended.test.mjs`: 10/10 passing
+  - `tests/leo_icon.test.mjs`: 8/8 passing
+  - `tests/leo_providers.test.mjs`: 6/6 passing
+- **Frontend Build:** `npm run build` succeeds in 320ms (33.5 KB bundle).
+- **Native Release Installer:** `Leo-Setup-x64.exe` (4.05 MB).
+- **Standalone Package:** `C:\Users\Yuvraj\Desktop\Leo-Release\Leo.exe` (22.8 MB) with `WebView2Loader.dll`.
 

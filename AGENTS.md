@@ -75,7 +75,7 @@ nixi/
 Execute commands independently to accurately capture exit codes:
 
 ```bash
-# 1. Regenerate Leo icon set from the facial animation idle frame
+# 1. Regenerate Leo icon set from the facial animation idle frame (Refined Icon V2)
 node scripts/generate-leo-icon.mjs
 
 # 2. Run P0 Core Unit Tests (7/7 passing)
@@ -87,17 +87,25 @@ node --test tests/leo_extended.test.mjs
 # 4. Run Icon Asset Integrity Tests (8/8 passing)
 node --test tests/leo_icon.test.mjs
 
-# 3. Build Webview Frontend Bundle
+# 5. Run AI Provider & Gemini Integration Tests (6/6 passing)
+node --test tests/leo_providers.test.mjs
+
+# 6. Build Webview Frontend Bundle
 cd app && npm run build
 
-# 4. Preview Webview Application (Port 1420)
-cd app && npx vite preview --port 1420
+# 7. Build Official Windows NSIS Installer (Leo-Setup-x64.exe)
+cd app && npx @tauri-apps/cli build --target x86_64-pc-windows-gnu --bundles nsis
 ```
 
 ---
 
 ## 4. Current Milestone & Status
 
-- **Status:** Webview interactive capsule is **100% operational** with original procedural face dynamics, breathing oscillation, squash-and-stretch interaction, speech cleanup, VAD, and offline ASR consent gate.
-- **Unit Tests:** **25/25 tests passing (100%)** (7 P0 + 10 extended + 8 icon integrity).
-- **Native Windows Shell:** Rust backend configured in `app/src-tauri/src/lib.rs` with `WS_EX_NOACTIVATE` and `WDA_EXCLUDEFROMCAPTURE`. Final native compilation (`cargo build`) is blocked on the Windows SDK C++ import libraries (`kernel32.lib`). See `TASKS.md` for exact remediation steps.
+- **Status:** Native Windows floating capsule and genuine installer are **100% operational**.
+- **Official Installer:** `C:\Users\Yuvraj\Desktop\Leo-Setup-x64.exe` (**4.05 MB**, NSIS Windows wizard with Start Menu entry, Desktop shortcut, and uninstaller metadata).
+- **Standalone Package:** `C:\Users\Yuvraj\Desktop\Leo-Release\Leo.exe` (22.8 MB) with `WebView2Loader.dll`.
+- **Zero Localhost Dependency:** Production app embeds static assets (`../dist`), never opening Chrome, dev servers, or localhost ports.
+- **Zero Console Window:** Enforces `#![windows_subsystem = "windows"]` for seamless GUI execution without terminal windows.
+- **Brand & Icon:** Refined Leo Icon V2 (canonical backup preserved, mouth removed, subtle symmetric soft pink blush marks added, all Windows/web sizes regenerated).
+- **AI Models:** Dual local-first loopback (Ollama / LM Studio) + online Google Gemini SSE streaming client with masked key storage, secret redaction, and `[Leaves your PC]` egress notice.
+- **Unit Tests:** **31/31 tests passing (100%)** (7 P0 + 10 extended + 8 icon integrity + 6 provider tests).

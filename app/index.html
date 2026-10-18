@@ -54,10 +54,10 @@
       .capsule {
         background: var(--bg-capsule);
         border: 1px solid var(--border-capsule);
-        border-radius: 28px;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 16px rgba(249, 115, 22, 0.12);
-        backdrop-filter: blur(28px);
-        -webkit-backdrop-filter: blur(28px);
+        border-radius: 36px;
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 0 24px rgba(249, 115, 22, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(32px);
+        -webkit-backdrop-filter: blur(32px);
         display: flex;
         flex-direction: column;
         width: 340px;
@@ -440,16 +440,65 @@
       <!-- Settings Drawer -->
       <div class="drawer-body" id="drawer-settings">
         <div class="settings-row">
-          <label for="model-provider-select">Model Provider</label>
+          <label for="model-provider-select">AI Provider & Privacy Boundary</label>
           <select id="model-provider-select" class="settings-select">
-            <option value="http://127.0.0.1:11434/v1">Ollama Local (127.0.0.1:11434)</option>
-            <option value="http://localhost:1234/v1">LM Studio Local (localhost:1234)</option>
-            <option value="https://api.openai.com/v1">OpenAI Cloud (Egress Warning)</option>
-            <option value="https://api.anthropic.com/v1">Claude Cloud (Egress Warning)</option>
+            <option value="ollama">Ollama Local (127.0.0.1:11434) — [Local]</option>
+            <option value="lmstudio">LM Studio Local (127.0.0.1:1234) — [Local]</option>
+            <option value="gemini">Google Gemini AI — [Leaves your PC]</option>
+            <option value="offline">Strict Offline Mode — [Zero Cloud Calls]</option>
           </select>
         </div>
+
+        <!-- Google Gemini Settings (Visible when Gemini selected or configured) -->
+        <div class="settings-row" id="gemini-settings-card" style="display: none;">
+          <label for="gemini-api-key">Google Gemini API Key (Stored securely)</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="password" id="gemini-api-key" class="chat-input" placeholder="AIzaSy... (held locally, never logged)" autocomplete="off" spellcheck="false" />
+            <button class="action-btn" id="toggle-key-visibility" title="Show / Hide Key">👁</button>
+          </div>
+          <div style="display: flex; gap: 6px; margin-top: 4px;">
+            <select id="gemini-model-select" class="settings-select" style="flex: 1;">
+              <option value="gemini-2.5-flash">gemini-2.5-flash (Fast & Recommended)</option>
+              <option value="gemini-2.5-pro">gemini-2.5-pro (High Reasoning)</option>
+              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+            </select>
+            <button class="action-btn primary" id="save-gemini-key-btn">Save Key</button>
+            <button class="action-btn" id="test-gemini-btn">Test</button>
+            <button class="action-btn" id="clear-gemini-key-btn" title="Remove stored key">Clear</button>
+          </div>
+          <div id="gemini-status-text" style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">No key set. Cloud queries disabled.</div>
+        </div>
+
+        <!-- Privacy & Usage Metrics Dashboard -->
         <div class="settings-row">
-          <label>Offline Speech Recognition Model</label>
+          <label>Privacy & Usage Status</label>
+          <div class="asr-download-card">
+            <div style="display: flex; justify-content: space-between; font-size: 11px;">
+              <span style="color: var(--text-muted);">Microphone Audio:</span>
+              <span style="color: var(--accent-green); font-weight: 600;">Zero Egress (100% on-device)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px;">
+              <span style="color: var(--text-muted);">Active Provider / Model:</span>
+              <span id="usage-active-model" style="font-weight: 500;">Ollama / qwen-3.5-2b</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px;">
+              <span style="color: var(--text-muted);">Session Queries:</span>
+              <span id="usage-queries-count" style="font-weight: 500;">0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px;">
+              <span style="color: var(--text-muted);">Token Usage:</span>
+              <span id="usage-tokens-count" style="font-weight: 500;">Local / N/A</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 4px; margin-top: 2px;">
+              <span>Estimated Cost:</span>
+              <span>Cost unavailable</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offline Speech Recognition Weights -->
+        <div class="settings-row">
+          <label>Offline Speech Recognition Weights</label>
           <div class="asr-download-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <strong>Parakeet-TDT 0.6B (680 MB)</strong>
