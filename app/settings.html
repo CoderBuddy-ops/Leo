@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leo — Settings</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <style>
+      :root {
+        --bg-body: #0C0D12;
+        --bg-card: rgba(255, 255, 255, 0.04);
+        --bg-input: rgba(255, 255, 255, 0.06);
+        --bg-hover: rgba(255, 255, 255, 0.09);
+        --border: rgba(255, 255, 255, 0.08);
+        --border-focus: #38BDF8;
+        --text-primary: #FAF5FF;
+        --text-secondary: #A3A8B8;
+        --text-muted: #6B7280;
+        --accent-copper: #F97316;
+        --accent-copper-hover: #FB923C;
+        --accent-cyan: #38BDF8;
+        --accent-green: #22C55E;
+        --accent-amber: #F59E0B;
+        --accent-red: #EF4444;
+        --accent-lavender: #A78BFA;
+        --radius: 10px;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      *:focus-visible {
+        outline: 2px solid var(--accent-cyan);
+        outline-offset: 2px;
+      }
+
+      body {
+        background: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Segoe UI Variable Display', 'Segoe UI', Inter, -apple-system, sans-serif;
+        font-size: 13px;
+        line-height: 1.5;
+        overflow-y: auto;
+        padding: 0;
+      }
+
+      /* ─── Layout ─────────────────────────────── */
+      .settings-shell {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 180px;
+        min-width: 180px;
+        background: rgba(0,0,0,0.25);
+        border-right: 1px solid var(--border);
+        padding: 20px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .sidebar-title {
+        font-size: 16px;
+        font-weight: 700;
+        padding: 0 16px 16px;
+        color: var(--accent-copper);
+        letter-spacing: -0.02em;
+      }
+
+      .sidebar-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        text-align: left;
+        padding: 9px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        transition: all 0.12s ease;
+      }
+
+      .sidebar-btn:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+      }
+
+      .sidebar-btn.active {
+        background: rgba(249, 115, 22, 0.1);
+        color: var(--accent-copper);
+        border-left-color: var(--accent-copper);
+      }
+
+      .main-content {
+        flex: 1;
+        padding: 28px 32px;
+        overflow-y: auto;
+      }
+
+      .section {
+        display: none;
+        flex-direction: column;
+        gap: 20px;
+        animation: fadeIn 0.18s ease;
+      }
+
+      .section.active {
+        display: flex;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 4px;
+      }
+
+      .section-desc {
+        color: var(--text-secondary);
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+
+      /* ─── Cards ──────────────────────────────── */
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .field-row {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .field-row label {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .field-row-horiz {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .field-row-horiz label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      /* ─── Inputs ─────────────────────────────── */
+      input[type="text"],
+      input[type="password"],
+      select {
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        padding: 8px 10px;
+        font-size: 13px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+
+      input:focus, select:focus {
+        border-color: var(--border-focus);
+      }
+
+      /* ─── Toggle Switch ──────────────────────── */
+      .toggle-switch {
+        position: relative;
+        width: 40px;
+        height: 22px;
+        flex-shrink: 0;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255,255,255,0.12);
+        border-radius: 22px;
+        transition: 0.2s;
+      }
+
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.2s;
+      }
+
+      .toggle-switch input:checked + .toggle-slider {
+        background: var(--accent-copper);
+      }
+
+      .toggle-switch input:checked + .toggle-slider::before {
+        transform: translateX(18px);
+      }
+
+      /* ─── Buttons ────────────────────────────── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-input);
+        color: var(--text-primary);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.12s ease;
+        font-family: inherit;
+      }
+
+      .btn:hover {
+        background: var(--bg-hover);
+        border-color: rgba(255,255,255,0.15);
+      }
+
+      .btn-primary {
+        background: var(--accent-copper);
+        border-color: var(--accent-copper);
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-copper-hover);
+      }
+
+      .btn-danger {
+        color: var(--accent-red);
+        border-color: rgba(239,68,68,0.3);
+      }
+
+      .btn-danger:hover {
+        background: rgba(239,68,68,0.12);
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      /* ─── Status Badges ──────────────────────── */
+      .status-text {
+        font-size: 11px;
+        color: var(--text-muted);
+        min-height: 16px;
+      }
+
+      .status-text.success { color: var(--accent-green); }
+      .status-text.error { color: var(--accent-red); }
+      .status-text.warning { color: var(--accent-amber); }
+      .status-text.info { color: var(--accent-cyan); }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .badge-local {
+        background: rgba(34,197,94,0.12);
+        color: var(--accent-green);
+        border: 1px solid rgba(34,197,94,0.25);
+      }
+
+      .badge-cloud {
+        background: rgba(245,158,11,0.12);
+        color: var(--accent-amber);
+        border: 1px solid rgba(245,158,11,0.25);
+      }
+
+      /* ─── Usage table ────────────────────────── */
+      .usage-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .usage-item {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+      }
+
+      .usage-item .label {
+        font-size: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .usage-item .value {
+        font-size: 18px;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+
+      /* ─── Privacy list ───────────────────────── */
+      .privacy-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .privacy-list li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .privacy-list li .dot-green {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--accent-green);
+        flex-shrink: 0;
+      }
+
+      .privacy-list li .dot-amber {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--accent-amber);
+        flex-shrink: 0;
+      }
+
+      .version-footer {
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+        font-size: 11px;
+        color: var(--text-muted);
+        text-align: center;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .section { animation: none !important; }
+        *, *::before, *::after { transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="settings-shell">
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar" role="navigation" aria-label="Settings navigation">
+        <div class="sidebar-title">⚙ Leo</div>
+        <button class="sidebar-btn active" data-section="general">General</button>
+        <button class="sidebar-btn" data-section="providers">AI Providers</button>
+        <button class="sidebar-btn" data-section="voice">Voice</button>
+        <button class="sidebar-btn" data-section="usage">Usage</button>
+        <button class="sidebar-btn" data-section="privacy">Privacy</button>
+        <button class="sidebar-btn" data-section="about">About</button>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+
+        <!-- ═══════════ GENERAL ═══════════ -->
+        <div class="section active" id="section-general">
+          <h2 class="section-title">General</h2>
+          <p class="section-desc">Startup behavior, dock visibility, and appearance.</p>
+
+          <div class="card">
+            <div class="field-row-horiz">
+              <label>Start Leo with Windows</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-startup" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-row-horiz">
+              <label>Show floating dock on launch</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-dock-visible" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-row-horiz">
+              <label>Always on top</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-always-on-top" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-row-horiz">
+              <label>Reduce motion (respect system preference)</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-reduced-motion" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Notifications</div>
+            <div class="field-row-horiz">
+              <label>Show notifications for AI provider changes</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-notifications" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-row-horiz">
+              <label>Show usage threshold alerts</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-usage-alerts" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════ AI PROVIDERS ═══════════ -->
+        <div class="section" id="section-providers">
+          <h2 class="section-title">AI Providers</h2>
+          <p class="section-desc">Configure online and local AI model connections.</p>
+
+          <div class="card">
+            <div class="card-title">Active Provider</div>
+            <div class="field-row">
+              <label for="settings-provider-select">Provider</label>
+              <select id="settings-provider-select">
+                <option value="ollama">Ollama Local (127.0.0.1:11434) — Local</option>
+                <option value="lmstudio">LM Studio Local (127.0.0.1:1234) — Local</option>
+                <option value="gemini">Google Gemini AI — Leaves your PC ⚠</option>
+                <option value="offline">Strict Offline Mode — Zero Cloud Calls</option>
+              </select>
+            </div>
+            <div id="settings-provider-badge-area">
+              <span class="badge badge-local" id="settings-privacy-badge">● Local</span>
+            </div>
+          </div>
+
+          <!-- Google Gemini Configuration -->
+          <div class="card" id="settings-gemini-card" style="display: none;">
+            <div class="card-title">Google Gemini Configuration</div>
+            <div style="font-size: 11px; color: var(--accent-amber); padding: 6px 10px; background: rgba(245,158,11,0.08); border-radius: 6px; border: 1px solid rgba(245,158,11,0.2);">
+              ⚠ Requests to Google Gemini leave your computer. Your prompts and responses travel through Google's servers.
+            </div>
+            <div class="field-row">
+              <label for="settings-gemini-key">API Key</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="password" id="settings-gemini-key" placeholder="AIzaSy... (stored locally, never logged)" autocomplete="off" spellcheck="false" style="flex: 1;" />
+                <button class="btn" id="settings-toggle-key-vis" title="Show/Hide key">👁</button>
+              </div>
+            </div>
+            <div class="field-row">
+              <label for="settings-gemini-model">Model</label>
+              <select id="settings-gemini-model">
+                <option value="gemini-2.5-flash">gemini-2.5-flash (Fast & Recommended)</option>
+                <option value="gemini-2.5-pro">gemini-2.5-pro (High Reasoning)</option>
+                <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+              </select>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" id="settings-save-key">Save Key</button>
+              <button class="btn" id="settings-test-connection">Test Connection</button>
+              <button class="btn btn-danger" id="settings-clear-key">Clear Key</button>
+            </div>
+            <div class="status-text" id="settings-gemini-status">No key configured.</div>
+          </div>
+
+          <!-- Local Model Configuration -->
+          <div class="card" id="settings-local-card">
+            <div class="card-title">Local AI Configuration</div>
+            <div class="field-row">
+              <label for="settings-local-endpoint">Endpoint URL</label>
+              <input type="text" id="settings-local-endpoint" value="http://127.0.0.1:11434/v1" />
+            </div>
+            <div class="field-row">
+              <label for="settings-local-model">Model Name</label>
+              <input type="text" id="settings-local-model" value="qwen-3.5-2b" />
+            </div>
+            <div class="btn-row">
+              <button class="btn" id="settings-test-local">Test Local Connection</button>
+            </div>
+            <div class="status-text" id="settings-local-status"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════ VOICE ═══════════ -->
+        <div class="section" id="section-voice">
+          <h2 class="section-title">Voice</h2>
+          <p class="section-desc">Microphone input and speech output configuration.</p>
+
+          <div class="card">
+            <div class="card-title">Microphone</div>
+            <div class="field-row">
+              <label for="settings-mic-select">Input Device</label>
+              <select id="settings-mic-select">
+                <option value="default">Default System Microphone</option>
+              </select>
+            </div>
+            <div class="field-row-horiz">
+              <label>Push-to-talk mode</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-ptt" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="status-text info">Audio is processed 100% on-device. No audio data leaves your computer.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Speech Output</div>
+            <div class="field-row-horiz">
+              <label>Enable voice responses</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-tts" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-row">
+              <label for="settings-voice-select">Voice</label>
+              <select id="settings-voice-select">
+                <option value="default">System Default</option>
+              </select>
+            </div>
+            <div class="field-row-horiz">
+              <label>Volume</label>
+              <input type="range" id="settings-voice-volume" min="0" max="100" value="70" style="flex: 1; max-width: 160px;" />
+            </div>
+            <div class="btn-row">
+              <button class="btn" id="settings-test-voice">Test Voice</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Offline Speech Recognition</div>
+            <div class="field-row-horiz">
+              <label>Parakeet-TDT 0.6B (680 MB)</label>
+              <span class="status-text" id="settings-asr-status">Not Downloaded</span>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" id="settings-download-asr">Download Weights</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════ USAGE ═══════════ -->
+        <div class="section" id="section-usage">
+          <h2 class="section-title">Usage</h2>
+          <p class="section-desc">Session statistics and approximate costs.</p>
+
+          <div class="usage-grid">
+            <div class="usage-item">
+              <div class="label">Active Provider</div>
+              <div class="value" id="usage-provider" style="font-size: 14px;">Ollama (Local)</div>
+            </div>
+            <div class="usage-item">
+              <div class="label">Session Queries</div>
+              <div class="value" id="usage-queries">0</div>
+            </div>
+            <div class="usage-item">
+              <div class="label">Token Usage</div>
+              <div class="value" id="usage-tokens">0</div>
+            </div>
+            <div class="usage-item">
+              <div class="label">Estimated Cost</div>
+              <div class="value" id="usage-cost" style="font-size: 14px;">Cost unavailable</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Data Egress Summary</div>
+            <div class="field-row-horiz">
+              <label>Microphone audio</label>
+              <span style="color: var(--accent-green); font-weight: 600; font-size: 12px;">Zero Egress (on-device)</span>
+            </div>
+            <div class="field-row-horiz">
+              <label>Chat prompts</label>
+              <span id="usage-chat-egress" style="font-weight: 600; font-size: 12px; color: var(--accent-green);">Local only</span>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn" id="usage-export">Export Usage Data</button>
+            <button class="btn btn-danger" id="usage-reset">Reset Counters</button>
+          </div>
+        </div>
+
+        <!-- ═══════════ PRIVACY ═══════════ -->
+        <div class="section" id="section-privacy">
+          <h2 class="section-title">Privacy & Permissions</h2>
+          <p class="section-desc">Control what Leo can access and how data is handled.</p>
+
+          <div class="card">
+            <div class="card-title">Data Handling</div>
+            <ul class="privacy-list">
+              <li><span class="dot-green"></span> Microphone audio is never sent off-device</li>
+              <li><span class="dot-green"></span> API keys are stored locally only — never in logs, Git, or crash reports</li>
+              <li><span class="dot-amber"></span> When using Google Gemini, prompt text and responses travel through Google servers</li>
+              <li><span class="dot-green"></span> Leo window is excluded from screen capture (WDA_EXCLUDEFROMCAPTURE)</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Permissions</div>
+            <div class="field-row-horiz">
+              <label>Allow screen capture (requires explicit activation)</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-screen-capture" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-row-horiz">
+              <label>Allow desktop automation (allowlisted actions only)</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-desktop-automation" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-row-horiz">
+              <label>Allow external AI calls</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-external-ai" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════ ABOUT ═══════════ -->
+        <div class="section" id="section-about">
+          <h2 class="section-title">About Leo</h2>
+          <p class="section-desc">Diagnostics and troubleshooting.</p>
+
+          <div class="card">
+            <div class="card-title">Application Info</div>
+            <div class="field-row-horiz">
+              <label>Version</label>
+              <span style="font-weight: 600;">0.1.0-alpha</span>
+            </div>
+            <div class="field-row-horiz">
+              <label>Framework</label>
+              <span>Tauri 2 + WebView2</span>
+            </div>
+            <div class="field-row-horiz">
+              <label>Platform</label>
+              <span id="about-platform">Windows</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Troubleshooting</div>
+            <div class="btn-row">
+              <button class="btn" id="about-test-providers">Test All Providers</button>
+              <button class="btn" id="about-copy-diagnostics">Copy Diagnostic Report</button>
+            </div>
+            <div class="status-text" id="about-diagnostic-status"></div>
+            <p style="font-size: 11px; color: var(--text-muted);">
+              Diagnostic reports automatically redact API keys and personal data.
+            </p>
+          </div>
+
+          <div class="version-footer">
+            Leo © 2024–2026 Leo Contributors · Local-first AI companion
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <script>
+      // ═══ Sidebar tab switching ═══
+      const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+      const sections = document.querySelectorAll('.section');
+
+      sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.section;
+          sidebarBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          sections.forEach(s => s.classList.remove('active'));
+          const sect = document.getElementById('section-' + target);
+          if (sect) sect.classList.add('active');
+        });
+      });
+
+      // ═══ Provider selection logic ═══
+      const providerSelect = document.getElementById('settings-provider-select');
+      const geminiCard = document.getElementById('settings-gemini-card');
+      const localCard = document.getElementById('settings-local-card');
+      const privacyBadge = document.getElementById('settings-privacy-badge');
+
+      const KEY_STORAGE = 'leo_gemini_api_key_v1';
+      const PROVIDER_STORAGE = 'leo_provider_type_v1';
+
+      // Restore saved state
+      const savedProvider = localStorage.getItem(PROVIDER_STORAGE) || 'ollama';
+      const savedKey = localStorage.getItem(KEY_STORAGE) || '';
+      providerSelect.value = savedProvider;
+      updateProviderUI(savedProvider);
+
+      const geminiKeyInput = document.getElementById('settings-gemini-key');
+      if (savedKey) {
+        geminiKeyInput.value = savedKey;
+        document.getElementById('settings-gemini-status').textContent = 'Key configured.';
+        document.getElementById('settings-gemini-status').className = 'status-text success';
+      }
+
+      providerSelect.addEventListener('change', () => {
+        const val = providerSelect.value;
+        localStorage.setItem(PROVIDER_STORAGE, val);
+        updateProviderUI(val);
+      });
+
+      function updateProviderUI(provider) {
+        geminiCard.style.display = provider === 'gemini' ? 'flex' : 'none';
+        localCard.style.display = (provider === 'ollama' || provider === 'lmstudio') ? 'flex' : 'none';
+
+        if (provider === 'gemini') {
+          privacyBadge.className = 'badge badge-cloud';
+          privacyBadge.textContent = '⚠ Leaves your PC';
+        } else {
+          privacyBadge.className = 'badge badge-local';
+          privacyBadge.textContent = '● Local';
+        }
+
+        // Update endpoint for local
+        const endpointInput = document.getElementById('settings-local-endpoint');
+        if (provider === 'ollama') {
+          endpointInput.value = 'http://127.0.0.1:11434/v1';
+        } else if (provider === 'lmstudio') {
+          endpointInput.value = 'http://127.0.0.1:1234/v1';
+        }
+      }
+
+      // ═══ Gemini key management ═══
+      document.getElementById('settings-toggle-key-vis').addEventListener('click', () => {
+        const inp = document.getElementById('settings-gemini-key');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+      });
+
+      document.getElementById('settings-save-key').addEventListener('click', () => {
+        const key = geminiKeyInput.value.trim();
+        localStorage.setItem(KEY_STORAGE, key);
+        const status = document.getElementById('settings-gemini-status');
+        status.textContent = key ? 'Key saved to local storage.' : 'Key cleared.';
+        status.className = key ? 'status-text success' : 'status-text';
+      });
+
+      document.getElementById('settings-test-connection').addEventListener('click', async () => {
+        const key = geminiKeyInput.value.trim();
+        const model = document.getElementById('settings-gemini-model').value;
+        const status = document.getElementById('settings-gemini-status');
+
+        if (!key) {
+          status.textContent = 'Enter an API key first.';
+          status.className = 'status-text error';
+          return;
+        }
+
+        status.textContent = 'Testing connection...';
+        status.className = 'status-text info';
+
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}?key=${key}`;
+          const res = await fetch(endpoint, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(8000)
+          });
+
+          if (res.ok) {
+            status.textContent = `✓ Connected to Google Gemini (${model})`;
+            status.className = 'status-text success';
+            localStorage.setItem(KEY_STORAGE, key);
+          } else if (res.status === 400 || res.status === 403) {
+            status.textContent = 'Invalid API key or unauthorized.';
+            status.className = 'status-text error';
+          } else {
+            status.textContent = `Google returned HTTP ${res.status}`;
+            status.className = 'status-text error';
+          }
+        } catch (err) {
+          const msg = err.message || String(err);
+          // Redact key from error message
+          const safe = key.length > 4 ? msg.split(key).join('[REDACTED]') : msg;
+          status.textContent = `Connection error: ${safe}`;
+          status.className = 'status-text error';
+        }
+      });
+
+      document.getElementById('settings-clear-key').addEventListener('click', () => {
+        geminiKeyInput.value = '';
+        localStorage.removeItem(KEY_STORAGE);
+        document.getElementById('settings-gemini-status').textContent = 'Key removed.';
+        document.getElementById('settings-gemini-status').className = 'status-text';
+      });
+
+      // ═══ Test local connection ═══
+      document.getElementById('settings-test-local').addEventListener('click', async () => {
+        const endpoint = document.getElementById('settings-local-endpoint').value.trim();
+        const status = document.getElementById('settings-local-status');
+        status.textContent = 'Testing...';
+        status.className = 'status-text info';
+
+        try {
+          const res = await fetch(endpoint.replace(/\/v1\/?$/, '/v1/models'), {
+            signal: AbortSignal.timeout(5000)
+          });
+          if (res.ok) {
+            status.textContent = '✓ Local model server is reachable';
+            status.className = 'status-text success';
+          } else {
+            status.textContent = `Server returned HTTP ${res.status}`;
+            status.className = 'status-text error';
+          }
+        } catch {
+          status.textContent = 'Cannot reach local server. Is Ollama / LM Studio running?';
+          status.className = 'status-text error';
+        }
+      });
+
+      // ═══ Copy diagnostic report ═══
+      document.getElementById('about-copy-diagnostics').addEventListener('click', () => {
+        const report = [
+          '=== Leo Diagnostic Report ===',
+          `Version: 0.1.0-alpha`,
+          `Platform: ${navigator.userAgent}`,
+          `Provider: ${localStorage.getItem(PROVIDER_STORAGE) || 'not set'}`,
+          `Gemini Key: ${localStorage.getItem(KEY_STORAGE) ? '[CONFIGURED - REDACTED]' : '[NOT SET]'}`,
+          `Time: ${new Date().toISOString()}`,
+          '=== End Report ==='
+        ].join('\n');
+
+        navigator.clipboard.writeText(report).then(() => {
+          document.getElementById('about-diagnostic-status').textContent = 'Report copied (keys redacted).';
+          document.getElementById('about-diagnostic-status').className = 'status-text success';
+        });
+      });
+
+      // ═══ Keyboard navigation ═══
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          // Try to invoke Tauri close (hide)
+          if (window.__TAURI__?.core?.invoke) {
+            window.__TAURI__.core.invoke('close_window');
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

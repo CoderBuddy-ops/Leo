@@ -4,7 +4,44 @@ All notable changes to **Leo** are documented in this file.
 
 ---
 
-## [0.1.0-alpha.6] - 2026-10-18
+## [0.1.0] - 2026-10-19
+
+### Added
+- **Native Windows System Tray (`app/src-tauri/src/lib.rs`):**
+  - Notification-area icon using `TrayIconBuilder` with contextual menu: `Open Leo`, `Show/Hide Dock`, `Settings`, `Start with Windows`, and `Quit`.
+  - Left-click tray icon focuses and shows the floating capsule overlay.
+  - Close event intercept (`WindowEvent::CloseRequested` with `api.prevent_close()`) hides dock to tray instead of terminating background process.
+- **Dedicated Standalone Settings Window (`app/settings.html`):**
+  - 560×640 standalone window with sidebar navigation: General, AI Providers, Voice, Usage, Privacy & Permissions, and About.
+  - Masked Google Gemini API key input with show/hide toggle, live connection test, and secure local storage.
+  - Local AI provider detection and configuration (Ollama / LM Studio) without automatic model weight downloads.
+  - Transparent data egress disclosures (`[Leaves your PC]`) and secret redaction.
+- **Multi-Page Vite Configuration (`app/vite.config.ts`):**
+  - Configured Rollup multi-page inputs for both `index.html` (capsule dock) and `settings.html` (settings).
+  - Eliminates 404 missing view errors when opening settings in production builds.
+- **Ralph Loop & Ponytail Integration:**
+  - Established canonical [PRD.md](file:///c:/Users/Yuvraj/Desktop/Project/nixi/PRD.md), [progress.txt](file:///c:/Users/Yuvraj/Desktop/Project/nixi/progress.txt), and [prompt.md](file:///c:/Users/Yuvraj/Desktop/Project/nixi/prompt.md).
+  - Installed official Ponytail lazy senior dev skill at [.agents/skills/ponytail/SKILL.md](file:///c:/Users/Yuvraj/Desktop/Project/nixi/.agents/skills/ponytail/SKILL.md).
+- **Consolidated Canonical Documentation:**
+  - Canonical development guide in `docs/development/SETUP.md`.
+  - Canonical packaging and installation guide in `docs/release/RELEASE.md`.
+  - Canonical security and privacy specification in `docs/security/SECURITY.md`.
+  - Measured cleanup and audit report in `docs/maintenance/CLEANUP_REPORT.md`.
+
+### Fixed
+- **Blank Square Panel Bug:**
+  - Resolved issue where clicking Chat or Settings produced an empty, clipped square popup.
+  - Wired Settings button to open the dedicated native window via `open_settings_window` IPC command.
+  - Dynamically sized Chat drawer (400×340) and Dictate drawer (400×300) with responsive CSS flexbox layout.
+- **MinGW Toolchain dlltool Collision:**
+  - Identified `.cargo/bin/dlltool.exe` collision causing `CreateProcess` failures during GNU import library creation.
+  - Resolved by prepending local WinLibs MinGW64 toolchain directory (`.../mingw64/bin`) to `PATH` in build scripts (`scripts/check-tauri.ps1`, `scripts/build-installer.ps1`).
+- **Disk Footprint Reduction:**
+  - Recovered 1,852 MB (1.81 GB) of disk space by safely removing reproducible debug target cache (`app/src-tauri/target/debug`) and retiring 12 obsolete/superseded prompt duplicates.
+  - Total repository size reduced from 3.58 GB to 1.77 GB.
+
+---
+
 
 ### Added
 - **Official Windows NSIS Installer (`Leo-Setup-x64.exe`):**

@@ -1,49 +1,53 @@
 # Documentation Index: Leo
 
 **Product:** Leo — Personal AI Companion for Windows 10/11 x64  
-**Last Updated:** 2026-10-17  
-**Status:** Approved
+**Last Updated:** 2026-10-19  
+**Status:** Approved Canonical Index  
 
 ---
 
-## 1. Governance & Root Invariants
-- [`00-project-invariants.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/.agents/rules/00-project-invariants.md) — Non-negotiable safety, privacy, and intellectual property invariants.
-- [`TASKS.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/TASKS.md) — Master executable prioritized task ledger and burndown.
+## 1. Product Requirements & Backlog
+- [`PRD.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/PRD.md) — Canonical Product Requirements Document (Personas, JTBD, FR/NFRs, and 13 Ralph Loop Tasks).
+- [`TASKS.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/TASKS.md) — Human-readable task dashboard linked to PRD.md and progress.txt.
+- [`progress.txt`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/progress.txt) — Persistent, append-only Ralph iteration log.
+- [`prompt.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/prompt.md) — Per-iteration contract for Ralph Loop execution.
 
 ---
 
-## 2. Research & Upstream Reference Audits
-- [`TOOLING_INVENTORY.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/research/TOOLING_INVENTORY.md) — Host toolchains, REA engine status, skills, and MCP discovery.
-- [`LICENSING_AND_ASSET_AUDIT.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/research/LICENSING_AND_ASSET_AUDIT.md) — Coucou MIT vs `LICENSE-ASSETS.md` reservations & HeyNixi legal cleanroom rules.
-- [`HEYNIXI_AUDIT.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/research/HEYNIXI_AUDIT.md) — Reverse-engineering findings (Qwen 3.5 model catalog, SplitMix32 PRNG, spring physics).
-- [`COUCOU_AUDIT.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/research/COUCOU_AUDIT.md) — Windows native architecture, AltGr keyboard safety, 399 unit tests verified.
-- [`REFERENCE_COMPARISON.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/research/REFERENCE_COMPARISON.md) — Comparative matrix across HeyNixi, Coucou, and Leo.
-- [`SOURCE_REGISTER.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/research/SOURCE_REGISTER.md) — Traceability register for all analyzed commits, URLs, and code artifacts.
+## 2. Engineering & Operation
+- [`AGENTS.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/AGENTS.md) — Canonical agent operating rules, safety invariants, and Ponytail minimal-solution ladder.
+- [`SETUP.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/development/SETUP.md) — Environment prerequisites, MinGW GCC 16.2.0 toolchain, dev workflow, and test runner.
+- [`RELEASE.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/release/RELEASE.md) — Packaging architecture, NSIS installer wizard, standalone binary, and clean-machine verification.
+- [`CLEANUP_REPORT.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/maintenance/CLEANUP_REPORT.md) — Measured disk space cleanup and documentation consolidation audit.
 
 ---
 
-## 3. Product & Strategy Specifications
-- [`PRD.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/product/PRD.md) — Product Requirements Document: personas, functional requirements (`FR-xxx`), non-functional requirements (`NFR-xxx`).
-- [`MVP_SCOPE.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/product/MVP_SCOPE.md) — Prioritized P0 deliverables, explicitly deferred capabilities, and acceptance criteria.
+## 3. Architecture & Security
+- [`ARCHITECTURE.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/architecture/ARCHITECTURE.md) — Two-window webview model, native shell, system tray, and IPC bridge.
+- [`SECURITY.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/security/SECURITY.md) — Zero raw audio egress, Gemini API key masking, screen capture exclusion (`WDA_EXCLUDEFROMCAPTURE`).
+- [`COMPANION_AND_MOTION.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/design/COMPANION_AND_MOTION.md) — 2D canvas character dynamics, spring-damper equations, and reduced-motion policy.
 
 ---
 
-## 4. Architecture & Technical Decision Records (ADRs)
-- [`ARCHITECTURE.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/architecture/ARCHITECTURE.md) — System context, C4 container views, and module boundaries.
-- [`DATA_FLOWS.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/architecture/DATA_FLOWS.md) — Speech dictation, model provider routing, and safe OS tool execution flows.
-- [`ADR 0001: Foundation Strategy`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/architecture/ADR/0001-foundation.md) — Selective clean reuse of Coucou's MIT Windows windowing & FSM.
-- [`ADR 0002: Speech Pipeline`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/architecture/ADR/0002-speech-pipeline.md) — Offline ASR strategy (`sherpa-onnx`) and clipboard insertion safety.
-- [`ADR 0003: AI Provider Strategy`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/architecture/ADR/0003-ai-provider-strategy.md) — Provider-agnostic interface and local loopback vs cloud routing.
-- [`ADR 0004: Safe Automation`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/architecture/ADR/0004-safe-automation.md) — Three-tier risk architecture and prompt injection guards.
-- [`ADR 0005: Screen Context`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/architecture/ADR/0005-screen-context.md) — Tiered UI Automation, window capture, and capture exclusion (`WDA_EXCLUDEFROMCAPTURE`).
+## 4. Architecture Decision Records (ADRs)
+- [`ADR 0001: Foundation Strategy`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/decisions/0001-foundation.md) — Cleanroom architecture and hybrid Tauri 2 foundation.
+- [`ADR 0002: Speech Pipeline`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/decisions/0002-speech-pipeline.md) — Offline ASR strategy, local VAD, and clipboard restoration.
+- [`ADR 0003: AI Provider Strategy`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/decisions/0003-ai-provider-strategy.md) — Unified provider interface, local loopback, and Gemini SSE streaming.
+- [`ADR 0004: Safe Automation`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/decisions/0004-safe-automation.md) — Three-tier risk boundaries and shell injection prevention.
+- [`ADR 0005: Screen Context`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/decisions/0005-screen-context.md) — Window capture exclusion and UI Automation safeguards.
 
 ---
 
-## 5. Design & User Experience
-- [`COMPANION_AND_MOTION.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/design/COMPANION_AND_MOTION.md) — Leo character geometry, spring-damper equations, mood state machine, and battery policies.
+## 5. Licensing & Legal Compliance
+- [`THIRD_PARTY_NOTICES.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/THIRD_PARTY_NOTICES.md) — MIT licenses, upstream attributions, and cleanroom separation.
 
 ---
 
-## 6. Security & Privacy
-- [`THREAT_MODEL.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/security/THREAT_MODEL.md) — STRIDE threat matrix, trust boundaries, prompt injection mitigations.
-- [`NETWORK_POLICY.md`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/security/NETWORK_POLICY.md) — Local-first policy, zero raw audio egress, explicit cloud badges.
+## 6. Historical Reference & Cleanroom Audits
+Historical cleanroom audit documents are archived in [`docs/archive/`](file:///c:/Users/Yuvraj/Desktop/Project/nixi/docs/archive/):
+- `docs/archive/COUCOU_AUDIT.md`
+- `docs/archive/HEYNIXI_AUDIT.md`
+- `docs/archive/REFERENCE_COMPARISON.md`
+- `docs/archive/LICENSING_AND_ASSET_AUDIT.md`
+- `docs/archive/SOURCE_REGISTER.md`
+- `docs/archive/TOOLING_INVENTORY.md`

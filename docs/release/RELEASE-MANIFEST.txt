@@ -1,0 +1,35 @@
+================================================================================
+Leo Windows Desktop Companion — Release v0.1.0 Manifest
+Generated: 2026-10-19
+================================================================================
+
+DELIVERABLE ARTIFACTS IN C:\Users\Yuvraj\Desktop\Leo-Release:
+
+1. Leo-Setup-0.1.0-x64.exe (4.06 MB)
+   - Official Windows NSIS Installer wizard.
+   - Recommended distribution format for users.
+   - Installs per-user to %LOCALAPPDATA%\Programs\Leo.
+   - Creates Start Menu shortcut and optional Desktop shortcut.
+   - Registers standard Windows "Add or Remove Programs" uninstaller.
+   - Bundles all assets, WebView2 integration, and icon assets self-contained.
+
+2. Leo-Setup-x64.exe (4.06 MB)
+   - Identical to Leo-Setup-0.1.0-x64.exe, provided for convenient direct linking.
+
+3. Leo.exe (21.8 MB)
+   - Independently runnable standalone release binary.
+   - Requires WebView2Loader.dll in the same folder.
+   - Self-contained static assets embedded directly in binary (zero localhost / Vite dependency).
+   - Enforces Win32 GUI subsystem (#![windows_subsystem = "windows"]) — no console terminal.
+
+4. WebView2Loader.dll (157 KB)
+   - Microsoft Edge WebView2 runtime loader DLL required alongside Leo.exe.
+
+KEY FEATURES VERIFIED IN THIS BUILD:
+- Zero-Localhost: Launches directly from static assets (../dist) without Vite or port 1420.
+- System Tray: Native notification-area icon with Open Leo, Show/Hide Dock, Settings, Start with Windows, Quit.
+- Dedicated Settings Window: Full-featured standalone window (settings.html) for Gemini API key, local AI (Ollama/LM Studio), voice settings, and privacy controls.
+- Repaired Panels: Fixed geometry prevents blank square clipping (Chat: 400x340, Dictate: 400x300, Settings: dedicated window).
+- Canonical Leo Icon V2: Mouth removed, symmetric soft pink blush marks beside eyes.
+- Privacy & Egress: Audio strictly on-device; external cloud API calls flagged with [Leaves your PC].
+- Test Coverage: 31/31 unit tests passing (100%).

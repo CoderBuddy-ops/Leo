@@ -1,0 +1,89 @@
+# Leo Ralph Loop Progress Journal
+
+Append one entry after each iteration. Do not rewrite earlier evidence.
+
+## Initial State
+- Status: Initialized with Ralph Loop PRD and Ponytail minimal-change guidelines.
+- Active task: Task 1 — Baseline and reproduce release failure.
+- Ralph configuration: Bounded file-backed loop with PRD.md, progress.txt, prompt.md.
+- Ponytail integration: Installed in `.agents/skills/ponytail/SKILL.md` and integrated into `AGENTS.md`.
+
+## Iteration Log
+
+### Iteration 0 — Ralph Loop Bootstrap & Ponytail Integration
+- **Task**: Bootstrap Ralph Loop specifications from `LEO_RALPH_LOOP_STARTER_PACK` and install Ponytail skill.
+- **Files**: `PRD.md`, `progress.txt`, `prompt.md`, `.agents/skills/ponytail/SKILL.md`, `AGENTS.md`.
+- **Result**: PRD.md established with 13 tasks (P0 release blockers and P1 enhancements). Ponytail skill and lazy senior dev ladder added.
+- **Checks**: 31/31 unit tests passing (`leo_p0`, `leo_extended`, `leo_icon`, `leo_providers`).
+
+### Iteration 1 — Production Packaging & Multi-Page Vite Config
+- **Task**: Task 3 & Task 4 (Fix Vite packaging for multi-page windows and repair blank panel).
+- **Files**: `app/vite.config.ts`, `app/settings.html`, `app/src/main.ts`, `src/ipc/leo_ipc.ts`, `app/src-tauri/src/lib.rs`.
+- **Diagnosis**: 
+  1. Vite default build only bundled `index.html`, omitting `settings.html` from `dist/`. When Tauri attempted to open the dedicated settings window, it was missing from the packaged distribution.
+  2. Tab switching logic collapsed drawers into small square dimensions (`340x74`), truncating Chat and Settings contents.
+- **Fix**:
+  1. Created `app/vite.config.ts` specifying multi-page rollup inputs (`main: index.html`, `settings: settings.html`).
+  2. Created dedicated full-featured standalone `app/settings.html`.
+  3. Sized drawers dynamically in `app/src/main.ts` (Chat: 400x340, Dictate: 400x300), and wired Settings to open the dedicated settings window via IPC command `open_settings_window`.
+- **Result**: `npm run build` generates both `dist/index.html` (17.12 kB) and `dist/settings.html` (32.68 kB).
+- **Next**: Verify Rust compilation with MinGW toolchain and test system tray / settings window launch.
+
+### Iteration 2 — Native Rust Build, NSIS Packaging & Measured Cleanup
+- **Task**: Task 2, Task 5, Task 12, Task 13 (Native toolchain resolution, system tray, NSIS packaging, disk cleanup, release staging).
+- **Files**: `scripts/check-tauri.ps1`, `scripts/build-installer.ps1`, `app/src-tauri/src/lib.rs`, `app/src-tauri/tauri.conf.json`, `docs/release/RELEASE-MANIFEST.txt`.
+- **Diagnosis**: 
+  1. Rust compilation for `x86_64-pc-windows-gnu` collided with `.cargo/bin/dlltool.exe` (GNU Binutils 2.44) lacking `as.exe`, causing `CreateProcess` errors.
+  2. Solved by prepending local MinGW64 toolchain directory (`.../mingw64/bin`) to PATH in build scripts.
+  3. Window builder method `.focused()` required a boolean argument `.focused(true)`.
+- **Actions & Results**:
+  1. Fixed `.focused(true)` in `app/src-tauri/src/lib.rs`.
+  2. Built production bundle via `scripts/build-installer.ps1`:
+     - Built application binary: `app/src-tauri/target/x86_64-pc-windows-gnu/release/leo.exe` (21.8 MB).
+     - Built NSIS installer: `app/src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/Leo_0.1.0_x64-setup.exe` (4.06 MB).
+  3. Safe Repository Disk Cleanup (Task 2):
+     - Before: 3.576 GB.
+     - Cleaned: Unoptimized intermediate debug build cache (`app/src-tauri/target/debug`) recovering 1,852 MB (1.81 GB).
+     - After: **1.767 GB** total repository size.
+  4. Release Staging:
+     - Staged verified deliverables to `C:\Users\Yuvraj\Desktop\Leo-Release\`:
+       - `Leo-Setup-0.1.0-x64.exe` (4.06 MB)
+       - `Leo-Setup-x64.exe` (4.06 MB)
+       - `Leo.exe` (21.8 MB)
+       - `WebView2Loader.dll` (157 KB)
+       - `RELEASE-MANIFEST.txt` (2 KB)
+- **Checks**:
+  - `npm run build`: Exit 0 (1.49s).
+  - Cargo release build + makensis: Exit 0 (4m 17s).
+  - 31/31 unit tests passing (`leo_p0`, `leo_extended`, `leo_icon`, `leo_providers`).
+- **Next**: Documentation consolidation, obsolete markdown retirement, and cleanroom reorganization.
+
+### Iteration 3 — Documentation Consolidation & Obsolete Markdown Retirement
+- **Task**: Critical Issue A2 (Consolidate documentation into canonical structure, retire superseded prompt variants, archive historical audits).
+- **Files**: `README.md`, `PRD.md`, `docs/INDEX.md`, `docs/development/SETUP.md`, `docs/release/RELEASE.md`, `docs/security/SECURITY.md`, `docs/architecture/ARCHITECTURE.md`, `docs/maintenance/CLEANUP_REPORT.md`, `docs/decisions/*`, `docs/archive/*`.
+- **Actions**:
+  1. Established the single canonical documentation structure required by Master Build Prompt v3:
+     - Root: `README.md`, `AGENTS.md`, `PRD.md`, `TASKS.md`, `progress.txt`, `prompt.md`, `CHANGELOG.md`, `THIRD_PARTY_NOTICES.md`.
+     - `docs/development/SETUP.md`: Comprehensive setup and build guide for MinGW64 toolchain, Vite, and Tauri.
+     - `docs/release/RELEASE.md`: Packaging, NSIS installer, standalone binary, verification, and uninstallation.
+     - `docs/security/SECURITY.md`: Zero raw audio egress, Gemini API key masking, screen capture exclusion (`WDA_EXCLUDEFROMCAPTURE`).
+     - `docs/architecture/ARCHITECTURE.md`: Up-to-date two-window model, tray lifecycle, and provider engine.
+     - `docs/maintenance/CLEANUP_REPORT.md`: Full audit and before/after metrics.
+     - `docs/decisions/`: ADRs 0001 through 0005.
+     - `docs/archive/`: Historical research audits.
+  2. Permanently deleted 12 obsolete/superseded prompt variants and duplicate templates:
+     - `LEO_ANTIGRAVITY_MASTER_HANDOFF_WITH_FREEBUFF_PARALLEL.md`
+     - `docs/LEO_ANTIGRAVITY_CONTINUATION_PROMPT.md`
+     - `docs/LEO_ANTIGRAVITY_MASTER_PROMPT.md`
+     - `docs/LEO_MILESTONE_REVIEW.md`
+     - Duplicate copies in `docs/` (`PRD.md`, `prompt.md`, `README.md`, `progress.txt`)
+     - Temporary directory `LEO_RALPH_LOOP_STARTER_PACK/`
+     - Superseded research/product files (`FREEBUFF_TASK.md`, `BUILD_AND_INSTALL.md`, `PRIVACY.md`, `NETWORK_POLICY.md`, `THREAT_MODEL.md`).
+  3. Enriched root `PRD.md` with User Personas, Jobs-to-be-Done, Functional Requirements, and Non-Functional Requirements.
+- **Checks**:
+  - 31/31 unit tests passing (`leo_p0`, `leo_extended`, `leo_icon`, `leo_providers`).
+  - Frontend bundle: `npm run build` exits 0 (1.49s).
+  - Native Rust check: `powershell -ExecutionPolicy Bypass -File scripts/check-tauri.ps1` exits 0 (1.30s).
+- **Next**: Complete milestone, review final repository state, and present report to user.
+
+

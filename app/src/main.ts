@@ -210,21 +210,44 @@ faceContainer?.addEventListener("keydown", (e) => {
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     const tabName = btn.dataset.tab;
+    gestures.notifyUserActivity();
+
+    // Settings opens a dedicated window instead of inline drawer
+    if (tabName === "settings") {
+      LeoIPCBridge.execute({ command: "open_settings_window" }).catch(() => {
+        // Dev fallback: open inline settings drawer
+        tabButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        drawerBodies.forEach((drawer) => drawer.classList.remove("active"));
+        const settingsDrawer = document.getElementById("drawer-settings");
+        if (settingsDrawer) {
+          settingsDrawer.classList.add("active");
+          capsule.style.width = "400px";
+          LeoIPCBridge.execute({ command: "set_window_size", width: 400, height: 460 }).catch(() => {});
+        }
+      });
+      return;
+    }
+
     tabButtons.forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
-
     drawerBodies.forEach((drawer) => drawer.classList.remove("active"));
-    gestures.notifyUserActivity();
 
     if (tabName === "compact") {
       capsule.style.width = "340px";
-      LeoIPCBridge.execute({ command: "set_window_size", width: 340, height: 74 }).catch(() => {});
+      LeoIPCBridge.execute({ command: "set_window_size", width: 340, height: 80 }).catch(() => {});
     } else {
       capsule.style.width = "400px";
       const targetDrawer = document.getElementById(`drawer-${tabName}`);
       if (targetDrawer) {
         targetDrawer.classList.add("active");
-        const height = tabName === "chat" ? 320 : tabName === "settings" ? 430 : 250;
+        // Calculate appropriate height for each drawer
+        const drawerHeights: Record<string, number> = {
+          chat: 340,
+          dictate: 300,
+          settings: 460,
+        };
+        const height = drawerHeights[tabName ?? ""] || 300;
         LeoIPCBridge.execute({ command: "set_window_size", width: 400, height }).catch(() => {});
       }
     }

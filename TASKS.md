@@ -1,7 +1,10 @@
 # Master Task Backlog: Leo
 
-**Status:** Active  
-**Last Updated:** 2026-10-17
+**Status:** Active — Ralph Loop Execution  
+**Task Specification:** [PRD.md](file:///c:/Users/Yuvraj/Desktop/Project/nixi/PRD.md)  
+**Execution Journal:** [progress.txt](file:///c:/Users/Yuvraj/Desktop/Project/nixi/progress.txt)  
+**Operating Principles:** [AGENTS.md](file:///c:/Users/Yuvraj/Desktop/Project/nixi/AGENTS.md) (Ponytail minimal-change ladder)  
+**Last Updated:** 2026-10-19
 
 ---
 
@@ -79,6 +82,19 @@
 
 ---
 
+## Phase 6: Ralph Loop & Production Verification (Active)
+
+- [x] `TSK-060`: Bootstrap Ralph Loop file contracts (`PRD.md`, `progress.txt`, `prompt.md`) from `LEO_RALPH_LOOP_STARTER_PACK`.
+- [x] `TSK-061`: Integrate Ponytail lazy senior dev principles (`.agents/skills/ponytail/SKILL.md`) and document minimal-solution ladder in `AGENTS.md`.
+- [x] `TSK-062`: Resolve MinGW toolchain dlltool collision in `.cargo/bin` via explicit path prepending in `scripts/check-tauri.ps1` and `scripts/build-installer.ps1`.
+- [x] `TSK-063`: Implement multi-page Vite production build (`app/vite.config.ts`) ensuring `settings.html` (32.68 kB) and `index.html` (17.12 kB) are bundled into `dist/`.
+- [x] `TSK-064`: Implement dedicated standalone Settings window in `app/settings.html` and wire IPC command `open_settings_window` in `app/src/main.ts` and `app/src-tauri/src/lib.rs`.
+- [x] `TSK-065`: Implement native Windows system tray icon with contextual menu (`Open Leo`, `Show/Hide Dock`, `Settings`, `Start with Windows`, `Quit`) and close-to-tray handling.
+- [x] `TSK-066`: Fix blank square panel bug by dynamically sizing drawer heights (Chat: 400x340, Dictate: 400x300, Settings: dedicated window).
+- [x] `TSK-067`: Build and verify production NSIS installer (`Leo-Setup-x64.exe`) and deploy to `C:\Users\Yuvraj\Desktop\Leo-Release\`.
+
+---
+
 ## Verification & Test Metrics (100% Passing)
 
 - **Total Unit Tests:** **31 / 31 passing (100%)**
@@ -86,7 +102,7 @@
   - `tests/leo_extended.test.mjs`: 10/10 passing
   - `tests/leo_icon.test.mjs`: 8/8 passing
   - `tests/leo_providers.test.mjs`: 6/6 passing
-- **Frontend Build:** `npm run build` succeeds in 320ms (33.5 KB bundle).
-- **Native Release Installer:** `Leo-Setup-x64.exe` (4.05 MB).
-- **Standalone Package:** `C:\Users\Yuvraj\Desktop\Leo-Release\Leo.exe` (22.8 MB) with `WebView2Loader.dll`.
+- **Frontend Build:** `npm run build` succeeds in 1.49s (multi-page: `index.html` + `settings.html`).
+- **Rust Backend:** Compiles with zero errors targeting `x86_64-pc-windows-gnu`.
+
 

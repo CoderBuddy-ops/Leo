@@ -99,13 +99,66 @@ cd app && npx @tauri-apps/cli build --target x86_64-pc-windows-gnu --bundles nsi
 
 ---
 
-## 4. Current Milestone & Status
+## 4. Ralph Loop & Ponytail Operating Principles
 
-- **Status:** Native Windows floating capsule and genuine installer are **100% operational**.
-- **Official Installer:** `C:\Users\Yuvraj\Desktop\Leo-Setup-x64.exe` (**4.05 MB**, NSIS Windows wizard with Start Menu entry, Desktop shortcut, and uninstaller metadata).
-- **Standalone Package:** `C:\Users\Yuvraj\Desktop\Leo-Release\Leo.exe` (22.8 MB) with `WebView2Loader.dll`.
+### Ralph Loop File Contracts
+- **`PRD.md`**: Canonical, read-only product and task backlog divided into discrete, independently testable tasks (Task 1 to Task 13).
+- **`progress.txt`**: Durable, append-only iteration log recording timestamp, task ID, files changed, exact commands/exit codes, outcomes, and next task.
+- **`prompt.md`**: Execution contract for every iteration to inspect Git status, implement one task, run backpressure checks, and log progress.
+- **`TASKS.md`**: Human-readable dashboard tracking task completion against the PRD.
+
+### Ponytail Minimal-Solution Ladder (DietrichGebert/ponytail)
+1. **Does it need to exist?** Skip features, options, and flexibility nobody asked for.
+2. **Already in this codebase?** Reuse existing helpers, components, services, and patterns.
+3. **Standard library or platform feature?** Use it unless the project has its own.
+4. **An installed dependency?** Use it. Never add an external dependency for a few lines.
+5. **Can it be one clear line?** Keep it simple and readable.
+6. **Otherwise:** Write the minimum maintainable code that works.
+*Safety Invariant*: Never cut input validation, error handling, security boundaries, or accessibility to save lines. Minimal code is complete code with the fluff removed.
+
+---
+
+## 5. Verified Build, Test, and Run Commands
+
+Execute commands independently to accurately capture exit codes:
+
+```powershell
+# 1. Regenerate Leo icon set from the facial animation idle frame (Refined Icon V2)
+node scripts/generate-leo-icon.mjs
+
+# 2. Run P0 Core Unit Tests (7/7 passing)
+node --test tests/leo_p0.test.mjs
+
+# 3. Run Extended Voice, VAD, IPC & Gesture Tests (10/10 passing)
+node --test tests/leo_extended.test.mjs
+
+# 4. Run Icon Asset Integrity Tests (8/8 passing)
+node --test tests/leo_icon.test.mjs
+
+# 5. Run AI Provider & Gemini Integration Tests (6/6 passing)
+node --test tests/leo_providers.test.mjs
+
+# 6. Build Multi-Page Webview Frontend Bundle (index.html + settings.html)
+cd app && npm run build
+
+# 7. Check / Build Native Rust Backend (Prepend MinGW Toolchain to PATH)
+powershell -ExecutionPolicy Bypass -File scripts/check-tauri.ps1
+
+# 8. Build Official Windows NSIS Installer (Leo-Setup-x64.exe)
+powershell -ExecutionPolicy Bypass -File scripts/build-installer.ps1
+```
+
+---
+
+## 6. Current Milestone & Status
+
+- **Status:** Native Windows floating capsule, dedicated settings window, system tray, and genuine installer are operational.
+- **System Tray:** Notification-area icon with menu (`Open Leo`, `Show/Hide Dock`, `Settings`, `Start with Windows`, `Quit`), click to focus, hide-to-tray on close.
+- **Dedicated Settings Window:** Standalone full-featured settings page (`settings.html`) with Gemini API key masked input, connection test, local AI discovery, voice config, and privacy controls.
+- **Multi-Page Vite Bundle:** Builds both `dist/index.html` and `dist/settings.html` for self-contained, zero-localhost execution.
 - **Zero Localhost Dependency:** Production app embeds static assets (`../dist`), never opening Chrome, dev servers, or localhost ports.
 - **Zero Console Window:** Enforces `#![windows_subsystem = "windows"]` for seamless GUI execution without terminal windows.
 - **Brand & Icon:** Refined Leo Icon V2 (canonical backup preserved, mouth removed, subtle symmetric soft pink blush marks added, all Windows/web sizes regenerated).
 - **AI Models:** Dual local-first loopback (Ollama / LM Studio) + online Google Gemini SSE streaming client with masked key storage, secret redaction, and `[Leaves your PC]` egress notice.
 - **Unit Tests:** **31/31 tests passing (100%)** (7 P0 + 10 extended + 8 icon integrity + 6 provider tests).
+

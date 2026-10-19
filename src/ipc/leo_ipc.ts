@@ -30,7 +30,10 @@ export type LeoIPCCommand =
   | { command: "set_window_size"; width: number; height: number }
   | { command: "paste_clipboard_text"; text: string }
   | { command: "minimize_window" }
-  | { command: "close_window" };
+  | { command: "close_window" }
+  | { command: "open_settings_window" }
+  | { command: "toggle_dock_visibility" }
+  | { command: "quit_app" };
 
 export class LeoIPCBridge {
   private static isTauriEnvironment(): boolean {
@@ -88,6 +91,9 @@ export class LeoIPCBridge {
       case "set_window_size":
       case "minimize_window":
       case "close_window":
+      case "open_settings_window":
+      case "toggle_dock_visibility":
+      case "quit_app":
         return { success: true, simulated: true, command: cmd.command };
 
       case "paste_clipboard_text":
