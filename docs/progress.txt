@@ -86,4 +86,27 @@ Append one entry after each iteration. Do not rewrite earlier evidence.
   - Native Rust check: `powershell -ExecutionPolicy Bypass -File scripts/check-tauri.ps1` exits 0 (1.30s).
 - **Next**: Complete milestone, review final repository state, and present report to user.
 
+### Iteration 4 — OpenCode Handoff Audit & User-Reported Failure Repair
+- **Task**: Audit repo as it exists, reproduce real failures, fix root causes (per Master Build Prompt).
+- **Files**: (pending this iteration)
+- **Audit Evidence (this session)**:
+  - Repo path verified: `C:\Users\Yuvraj\Desktop\Project\nixi`. Git: master@81b8a07, clean except 4 deleted brand assets (unstaged).
+  - Stack confirmed: **Tauri 2 + Rust (x86_64-pc-windows-gnu) + Vite multi-page frontend**. No framework migration needed.
+  - Repo size ~1.7 GB; largest dir `app/src-tauri/target` (1.6 GB build output). Source is tiny.
+  - Release binary `leo.exe` (21.82 MB) + NSIS installer `Leo_0.1.0_x64-setup.exe` (4.06 MB) both exist and are current.
+  - Tests: **31/31 passing** (leo_p0 7, leo_extended 10, leo_icon 8, leo_providers 6). Frontend `npm run build` exits 0.
+  - Live runtime: launched `leo.exe`, process Responding=True, window visible at top-center (598,12, 340×88), transparent, no console window. Settings window renders fully.
+- **User-Reported Failures (this session)**:
+  1. Chat section not working — connected a Gemini API key but gets no AI response.
+  2. Voice section not working.
+  3. Cute face animation missing — user wants the animation like the app icon.
+  4. Settings section/tabs on top not working.
+- **Root-Cause Diagnosis**:
+  - (1) Chat: the dedicated Settings window and the main dock window are **separate JS contexts with separate `AIProviderManager` instances**. The dock reads provider+key from localStorage only at page load. Changing provider/key in Settings writes localStorage but never updates the dock's in-memory manager → chat still targets the default `ollama` loopback (127.0.0.1:11434) which isn't running → "no response."
+  - (2) Voice: `toggleDictation()` in `app/src/main.ts` is **fully mocked** (`Math.random()` energy, sample hardcoded transcript). No real microphone/`getUserMedia` path.
+  - (3) Animation: face canvas renders but is subtle/small (60×48 CSS); not the lively blink/breathing/gaze the user expects from the icon.
+  - (4) Settings tabs: nav-tab click handlers exist but the window doesn't reliably resize/show drawers (IPC `set_window_size` + CSS width), so sections appear dead.
+- **Fix plan**: (a) sync provider state across windows via `storage` event + re-read on focus; (b) wire real mic input via `getUserMedia`+VAD with graceful fallback; (c) enlarge/animate the face (blink, breathing, gaze, happy squash) to match icon charm; (d) make tab switching robustly resize the native window and show drawers.
+- **Next**: Implement fixes, rebuild, re-test, verify visually.
+
 

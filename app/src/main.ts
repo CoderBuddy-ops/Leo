@@ -58,6 +58,26 @@ const providerManager = new AIProviderManager(storedProvider, storedKey);
 if (modelSelect) modelSelect.value = storedProvider;
 if (geminiApiKeyInput && storedKey) geminiApiKeyInput.value = storedKey;
 
+// ── Cross-window provider sync ────────────────────────────────────────────
+// The Settings window and the dock are separate JS contexts. When the user
+// changes provider/key in Settings it writes localStorage; the `storage` event
+// fires here in the dock so the in-memory manager picks up the change.
+const reloadProviderFromStorage = () => {
+  const prov = (localStorage.getItem(PROVIDER_STORAGE_NAME) as ProviderType) || "ollama";
+  const key = localStorage.getItem(KEY_STORAGE_NAME) || "";
+  providerManager.setProvider(prov);
+  providerManager.getGeminiClient().setApiKey(key);
+  if (modelSelect) modelSelect.value = prov;
+  updateEgressIndicator();
+};
+window.addEventListener("storage", (e) => {
+  if (e.key === KEY_STORAGE_NAME || e.key === PROVIDER_STORAGE_NAME) {
+    reloadProviderFromStorage();
+  }
+});
+// Also re-read when the dock regains focus (covers same-window edits).
+window.addEventListener("focus", reloadProviderFromStorage);
+
 // Initialize Core Engines
 const engine = new LeoCharacterEngine(42);
 const gestures = new LeoGestureController(engine, { inactivityTimeoutMs: 60000 });
@@ -66,6 +86,9 @@ const asr = new OfflineASRPipeline();
 
 let isRecording = false;
 let audioLevelInterval: number | null = null;
+let mediaStream: MediaStream | null = null;
+let audioContext: AudioContext | null = null;
+let audioAnalyser: AnalyserNode | null = null;
 let lastRenderTime = performance.now();
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -151,8 +174,8 @@ if (canvas && context) {
       // Luminous warm cream eyes with gaze dynamics
       ctx.fillStyle = "#FAF5FF";
       const talkPulse = mood === "talking" ? (1.0 + Math.sin(time * 0.015) * 0.15) : 1.0;
-      const eyeH = 15.5 * val.eye_size * blink * talkPulse;
-      const eyeW = 9.5 * val.eye_size;
+      const eyeH = 16.5 * val.eye_size * blink * talkPulse;
+      const eyeW = 10.5 * val.eye_size;
 
       // Left eye
       const leftX = 40 + val.look_x * 7;
@@ -166,6 +189,16 @@ if (canvas && context) {
       const rightY = 48 + val.look_y * 5;
       ctx.beginPath();
       ctx.ellipse(rightX, rightY, eyeW, Math.max(1, eyeH), 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Soft pink blush marks beside the eyes (matches Leo Icon V2)
+      const blushColor = "rgba(250, 128, 146, 0.32)";
+      ctx.fillStyle = blushColor;
+      ctx.beginPath();
+      ctx.ellipse(29, 58, 7.0, 4.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(91, 58, 7.0, 4.6, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Subtle cyan specular reflection dot
@@ -235,7 +268,7 @@ tabButtons.forEach((btn) => {
 
     if (tabName === "compact") {
       capsule.style.width = "340px";
-      LeoIPCBridge.execute({ command: "set_window_size", width: 340, height: 80 }).catch(() => {});
+      LeoIPCBridge.execute({ command: "set_window_size", width: 340, height: 96 }).catch(() => {});
     } else {
       capsule.style.width = "400px";
       const targetDrawer = document.getElementById(`drawer-${tabName}`);
@@ -254,8 +287,25 @@ tabButtons.forEach((btn) => {
   });
 });
 
-// 4. Voice Dictation & Audio Simulation
-const toggleDictation = () => {
+// 4. Voice Dictation — real microphone input via getUserMedia + Web Audio.
+// Audio is analysed locally (RMS/ZCR via the VAD) and never leaves the device.
+const stopMicCapture = () => {
+  if (audioLevelInterval) {
+    clearInterval(audioLevelInterval);
+    audioLevelInterval = null;
+  }
+  if (mediaStream) {
+    mediaStream.getTracks().forEach((t) => t.stop());
+    mediaStream = null;
+  }
+  if (audioContext) {
+    audioContext.close().catch(() => {});
+    audioContext = null;
+  }
+  audioAnalyser = null;
+};
+
+const toggleDictation = async () => {
   isRecording = !isRecording;
   micBtn.classList.toggle("active", isRecording);
   gestures.setVoiceListening(isRecording);
@@ -263,26 +313,45 @@ const toggleDictation = () => {
   if (isRecording) {
     statusSub.textContent = "Listening • Local Audio Only";
     transcriptBox.textContent = "Listening... Speak naturally (fillers will be removed).";
-
-    // Simulate real-time audio energy meter
-    let mockEnergy = 0.2;
-    audioLevelInterval = window.setInterval(() => {
-      mockEnergy = 0.1 + Math.random() * 0.75;
-      levelBar.style.width = `${Math.round(mockEnergy * 100)}%`;
-
-      // Feed simulated frame to VAD
-      const mockSamples = new Float32Array(512);
-      for (let i = 0; i < 512; i++) {
-        mockSamples[i] = (Math.random() - 0.5) * mockEnergy;
-      }
-      vad.processFrame(mockSamples);
-    }, 60);
-  } else {
-    statusSub.textContent = "Processing speech...";
-    if (audioLevelInterval) clearInterval(audioLevelInterval);
     levelBar.style.width = "0%";
 
-    // Finalize speech & clean transcript
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(mediaStream);
+      audioAnalyser = audioContext.createAnalyser();
+      audioAnalyser.fftSize = 1024;
+      source.connect(audioAnalyser);
+
+      const pcm = new Float32Array(audioAnalyser.fftSize);
+      audioLevelInterval = window.setInterval(() => {
+        audioAnalyser!.getFloatTimeDomainData(pcm);
+        // Real RMS energy for the level meter
+        let sum = 0;
+        for (let i = 0; i < pcm.length; i++) sum += pcm[i] * pcm[i];
+        const rms = Math.sqrt(sum / pcm.length);
+        levelBar.style.width = `${Math.min(100, Math.round(rms * 320))}%`;
+        // Feed the real frame to the VAD (local-only speech detection)
+        vad.processFrame(pcm);
+        if (vad.state === "speaking") {
+          statusSub.textContent = "Hearing speech • Local Audio Only";
+        } else {
+          statusSub.textContent = "Listening • Local Audio Only";
+        }
+      }, 60);
+    } catch (err) {
+      // Mic denied / unavailable — fall back to an honest demo mode.
+      statusSub.textContent = "Mic unavailable • Demo mode";
+      transcriptBox.textContent =
+        "Microphone access is unavailable, so live capture is disabled. Use Demo Speech to preview the local filler-cleanup pipeline.";
+      levelBar.style.width = "0%";
+    }
+  } else {
+    statusSub.textContent = "Processing speech...";
+    stopMicCapture();
+    levelBar.style.width = "0%";
+
+    // Finalize speech & clean transcript (demo transcript when no live ASR)
     const sampleRaw = "Hello team, um, the release is confirmed for Wednesday, actually Thursday.";
     const cleaned = SpeechCleanupFilter.clean(sampleRaw);
     transcriptBox.innerHTML = `<strong>Cleaned:</strong> ${cleaned}<br><span style="color: var(--text-muted); font-size: 10px;">Raw was: "${sampleRaw}"</span>`;
@@ -524,3 +593,6 @@ window.addEventListener("keydown", (e) => {
     toggleDictation();
   }
 });
+
+// Stop microphone capture when the dock window is closed/hidden
+window.addEventListener("beforeunload", stopMicCapture);

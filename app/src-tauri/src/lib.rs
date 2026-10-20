@@ -153,18 +153,62 @@ fn quit_app<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
 #[cfg(windows)]
 extern "system" {
     fn SetWindowDisplayAffinity(hwnd: isize, dw_affinity: u32) -> i32;
+    fn GetWindowLongPtrW(hwnd: isize, n_index: i32) -> isize;
+    fn SetWindowLongPtrW(hwnd: isize, n_index: i32, dw_new_long: isize) -> isize;
+    fn SetWindowPos(
+        hwnd: isize,
+        hwnd_insert_after: isize,
+        x: i32,
+        y: i32,
+        cx: i32,
+        cy: i32,
+        u_flags: u32,
+    ) -> i32;
 }
 
 #[cfg(windows)]
 const WDA_EXCLUDEFROMCAPTURE: u32 = 0x0000_0011;
+#[cfg(windows)]
+const GWL_EXSTYLE: i32 = -20;
+#[cfg(windows)]
+const WS_EX_LAYERED: isize = 0x0008_0000;
+#[cfg(windows)]
+const SWP_FRAMECHANGED: u32 = 0x0020;
+#[cfg(windows)]
+const SWP_NOMOVE: u32 = 0x0002;
+#[cfg(windows)]
+const SWP_NOSIZE: u32 = 0x0001;
+#[cfg(windows)]
+const SWP_NOZORDER: u32 = 0x0004;
+#[cfg(windows)]
+const SWP_NOACTIVATE: u32 = 0x0010;
+#[cfg(windows)]
+const HWND_TOP: isize = 0;
 
 fn configure_native_companion_window(window: &WebviewWindow) {
     #[cfg(windows)]
     {
-        // Exclude from screen capture (privacy: WDA_EXCLUDEFROMCAPTURE)
         if let Ok(hwnd) = window.hwnd() {
             let raw = hwnd.0 as isize;
             unsafe {
+                // Add WS_EX_LAYERED so DWM uses per-pixel alpha for the
+                // transparent WebView2 surface. Without this, the WebView2
+                // content composits as fully transparent and the dock is blank.
+                let ex = GetWindowLongPtrW(raw, GWL_EXSTYLE);
+                SetWindowLongPtrW(raw, GWL_EXSTYLE, ex | WS_EX_LAYERED);
+
+                // Force DWM to re-composite the frame with the new style.
+                SetWindowPos(
+                    raw,
+                    HWND_TOP,
+                    0,
+                    0,
+                    0,
+                    0,
+                    SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE,
+                );
+
+                // Exclude from screen capture (privacy: WDA_EXCLUDEFROMCAPTURE)
                 let _ = SetWindowDisplayAffinity(raw, WDA_EXCLUDEFROMCAPTURE);
             }
         }

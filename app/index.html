@@ -69,8 +69,8 @@
       .header {
         display: flex;
         align-items: center;
-        padding: 10px 14px;
-        height: 72px;
+        padding: 8px 14px;
+        height: 88px;
         cursor: grab;
       }
 
@@ -79,23 +79,24 @@
       }
 
       .face-container {
-        width: 60px;
-        height: 48px;
+        width: 92px;
+        height: 72px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         position: relative;
         transition: transform 0.15s ease;
+        flex-shrink: 0;
       }
 
       .face-container:hover {
-        transform: scale(1.05);
+        transform: scale(1.06);
       }
 
       canvas {
-        width: 60px;
-        height: 48px;
+        width: 92px;
+        height: 72px;
       }
 
       .header-info {
