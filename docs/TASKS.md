@@ -1,108 +1,69 @@
 # Master Task Backlog: Leo
 
-**Status:** Active — Ralph Loop Execution  
-**Task Specification:** [PRD.md](file:///c:/Users/Yuvraj/Desktop/Project/nixi/PRD.md)  
-**Execution Journal:** [progress.txt](file:///c:/Users/Yuvraj/Desktop/Project/nixi/progress.txt)  
-**Operating Principles:** [AGENTS.md](file:///c:/Users/Yuvraj/Desktop/Project/nixi/AGENTS.md) (Ponytail minimal-change ladder)  
-**Last Updated:** 2026-10-19
+**Status:** Completed & Verified — C# / .NET 8 / WinUI 3 Architecture  
+**Architecture:** [ARCHITECTURE.md](architecture/ARCHITECTURE.md)  
+**Migration Ledger:** [MIGRATION.md](MIGRATION.md)  
+**PRD Specification:** [PRD.md](PRD.md)  
+**Last Updated:** 2026-10-20  
 
 ---
 
-## Phase 1 & 2: Research, Licensing & Foundation (Completed)
+## Phase 7: C# / Modern .NET 8 / WinUI 3 Master Migration & Release (Completed)
 
-- [x] `TSK-001`: Inspect workspace, discover REA and development toolchains.
-- [x] `TSK-002`: Clone and audit Coucou Windows reference (`434d6a2b4af2e5ce117fa425170abe25620130b9`).
-- [x] `TSK-003`: Run REA static analysis on HeyNixi (`app.js`, `styles.css`) and extract model/physics heuristics.
-- [x] `TSK-004`: Complete legal asset audit (`LICENSE-ASSETS.md`) and establish cleanroom rules.
-- [x] `TSK-005`: Author foundational ADRs (0001 to 0005) and core specifications (PRD, MVP Scope, Architecture, Threat Model, Network Policy).
-- [x] `TSK-006`: Execute Coucou Windows test suite (`npm test`) and achieve 399/399 passing tests.
-
----
-
-## Phase 3: Documentation Matrix & Specification (Completed)
-
-- [x] `TSK-010`: Create `docs/INDEX.md` documentation registry.
-- [x] `TSK-011`: Create `docs/research/TOOLING_INVENTORY.md`.
-- [x] `TSK-012`: Create `docs/research/HEYNIXI_AUDIT.md`.
-- [x] `TSK-013`: Create `docs/research/COUCOU_AUDIT.md`.
-- [x] `TSK-014`: Create `docs/research/REFERENCE_COMPARISON.md`.
-- [x] `TSK-015`: Create `docs/research/LICENSING_AND_ASSET_AUDIT.md`.
-- [x] `TSK-016`: Create `docs/research/SOURCE_REGISTER.md`.
-- [x] `TSK-017`: Create `docs/design/COMPANION_AND_MOTION.md`.
-- [x] `TSK-018`: Create `docs/security/THREAT_MODEL.md`.
-- [x] `TSK-019`: Create `docs/security/NETWORK_POLICY.md`.
-- [x] `TSK-020`: Create `.agents/rules/00-project-invariants.md`.
-
----
-
-## Phase 4 & 5: Implementation & First Vertical Slice (In Progress)
-
-- [x] `TSK-030`: Implement Leo's original procedural character engine (`src/companion/leo_face.ts`) with spring-damper dynamics and 9 mood states.
-- [x] `TSK-031`: Implement Leo's speech transcript cleanup filter (`src/voice/speech_cleanup.ts`) removing verbal fillers, detecting spoken corrections, and formatting bullet lists.
-- [x] `TSK-032`: Implement local model client (`src/models/local_client.ts`) supporting OpenAI-compatible streaming endpoints (Ollama/LM Studio) with cancellation.
-- [x] `TSK-033`: Add automated unit tests for Leo character engine, speech cleanup filter, and local model client.
-- [x] `TSK-034`: Execute tests and verify 100% pass rate (7/7 P0 tests passing).
-- [x] `TSK-036`: Implement local Voice Activity Detector (`src/voice/audio_vad.ts`) with RMS energy, ZCR, and silence hangover filtering.
-- [x] `TSK-037`: Implement offline speech recognition pipeline (`src/voice/offline_asr.ts`) with explicit user consent, progress tracking, and transcript cleanup integration.
-- [x] `TSK-038`: Implement strongly-typed IPC bridge (`src/ipc/leo_ipc.ts`) with strict parameter boundary validation and dev fallback.
-- [x] `TSK-039`: Implement companion gesture and auto-sleep controller (`src/companion/gestures.ts`).
-- [x] `TSK-040`: Build interactive floating capsule UI in `app/` (`app/index.html`, `app/src/main.ts`) with live digital face, audio meter, dictation bar, prompt drawer, and cloud egress warning.
-- [x] `TSK-041`: Execute extended test suite (`tests/leo_extended.test.mjs`) with 10/10 passing tests (17/17 tests passing overall).
-- [x] `TSK-043`: Extract and configure canonical black-hole brand icon assets (`assets/brand/leo-icon-1024.png`, `app/src-tauri/icons/icon.ico`, `app/public/favicon.png`).
-- [x] `TSK-044`: Refine design language: deep-space/charcoal foundation, copper accretion highlights, warm cream typography, and accessible cyan focus indicators.
-- [x] `TSK-045`: Enhance Leo character dynamics: subtle breathing float, physical squash-and-stretch interaction bounce, crescent happy eyes (`⌒ ⌒`), and `prefers-reduced-motion` support.
-- [x] `TSK-046`: Author canonical agent-agnostic operating guides (`AGENTS.md`, `CLAUDE.md`) for cross-agent interoperability.
-- [x] `TSK-047`: Create standalone Windows desktop launcher and shortcut (`C:\Users\Yuvraj\Desktop\Leo.lnk`) with black-hole application icon, silent VBS wrapper, and top-center capsule placement.
-- [x] `TSK-048`: Design and generate the circular professional Leo icon from a real idle frame of the facial animation engine (`scripts/generate-leo-icon.mjs`); wire into native Tauri icon set, favicon, and brand assets with structural + determinism test coverage (25/25 tests passing).
-- [x] `TSK-049`: Fix WebView2 root canvas white background symptom in `app/index.html` (explicit `html, body { background: transparent !important; }`), configure Win32 `SWP_FRAMECHANGED` and `WS_EX_LAYERED` in `app/src-tauri/src/lib.rs`, and author `docs/research/FREEBUFF_TASK.md` for parallel Freebuff coordination.
-- [x] `TSK-042`: Resolve native Windows compilation toolchain for `leo.exe`:
-  - Discovered full local WinLibs MinGW GCC 16.2.0 toolchain (`gcc.exe`, `as.exe`, `ld.exe`, `windres.exe`, `ar.exe`, `crtbegin.o`, `crtend.o`, `libkernel32.a`) in user WinGet packages (`C:\Users\Yuvraj\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.MSVCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64`).
-  - Configured `app/src-tauri/.cargo/config.toml` with WinLibs GCC linker and ar binaries.
-  - Verified compilation of test binary (`hello.exe`) and successful `cargo check` across all 100+ native Tauri dependencies in 2m 10s.
-- [x] `TSK-050`: Install and verify UI/UX Pro Max design intelligence skill (`https://uupm.cc/`, `ui-ux-pro-max` v2.15.0) via official installer into `.agents/skills/` (7 design skills: `ui-ux-pro-max`, `brand`, `design`, `design-system`, `ui-styling`, `banner-design`, `slides`); verified local Python 3 queries for dark companion palettes, OLED styles, and motion accessibility.
-- [x] `TSK-051`: Install essential IDE development extensions (`rust-lang.rust-analyzer`, `tauri-apps.tauri-vscode`, `bradlc.vscode-tailwindcss`, `dbaeumer.vscode-eslint`, `esbenp.prettier-vscode`).
-- [x] `TSK-052`: Refine Leo Icon V2:
-  - Preserved original master backup at `assets/brand/leo-face-icon-1024.v2-original.png`.
-  - Removed mouth stroke and added symmetrical, subtle soft pink blush marks beside eyes in `scripts/generate-leo-icon.mjs`.
-  - Regenerated all Windows `.ico` sizes (256/128/64/48/32/16), PNG icons (512, 256, 128, 32), and web favicon; 8/8 icon determinism tests passing.
-- [x] `TSK-053`: Fix `ERR_CONNECTION_REFUSED`, terminal window, and localhost dependency:
-  - Removed Chrome `--app=localhost:1420` legacy launcher script.
-  - Re-pointed desktop shortcut `C:\Users\Yuvraj\Desktop\Leo.lnk` directly to native `Leo.exe`.
-  - Verified bundled static frontend (`frontendDist: "../dist"`), zero localhost dependency, and GUI subsystem (`#pragma windows_subsystem = "windows"`).
-- [x] `TSK-054`: Build official Windows NSIS Installer:
-  - Packaged `Leo_0.1.0_x64-setup.exe` (4.05 MB) via Tauri CLI + NSIS 3.13.
-  - Staged to `C:\Users\Yuvraj\Desktop\Leo-Setup-x64.exe` and `C:\Users\Yuvraj\Desktop\Leo-Release\Leo-Setup-x64.exe`.
-- [x] `TSK-055`: Implement Google Gemini Online AI & Unified Provider Architecture:
-  - Implemented SSE streaming client in `src/models/gemini_client.ts` with API key masking and secret redaction.
-  - Implemented `src/models/ai_provider.ts` supporting Strict Offline Mode, Local Ollama, LM Studio, and Google Gemini with usage reporting and privacy badges.
-  - Added unit test suite `tests/leo_providers.test.mjs` (6/6 passing).
-- [x] `TSK-056`: Author canonical release and privacy documentation:
-  - `docs/release/BUILD_AND_INSTALL.md`
-  - `docs/security/PRIVACY.md`
+- [x] `TSK-070`: **Repository Audit & Baseline**:
+  - Inspected repository at `c:\Users\Yuvraj\Desktop\Project\nixi`, created migration branch `migration/dotnet-winui3`.
+  - Tagged baseline state `baseline-before-dotnet-migration`.
+- [x] `TSK-071`: **Asset & Trademark Preservation**:
+  - Preserved canonical Leo Icon V2 (`assets/brand/leo-face-icon-1024.png`) and multi-resolution Windows icons in `assets/icons/icon.ico`.
+  - Enforced zero Mochi/Coucou/HeyNixi IP infringement.
+- [x] `TSK-072`: **C# / .NET 8 Solution Architecture**:
+  - Created root `Leo.sln` with layered separation: `Leo.Core`, `Leo.Application`, `Leo.Infrastructure`, `Leo.App`, and `Leo.Core.Tests`.
+  - Configured project targets (`net8.0` and `net8.0-windows10.0.19041.0`).
+- [x] `TSK-073`: **Core Companion Domain & Physics Engine**:
+  - Ported `Mulberry32` PRNG matching exact golden vectors.
+  - Implemented `LeoCharacterEngine` with damped harmonic oscillator springs (`k=280`, `d=22`), organic gaze saccades, nonuniform blinks, breathing float, and squash-and-stretch.
+  - Implemented `LeoMoodState` presets (Idle, Hover, Listening, Thinking, Happy, Talking, Concentrate, Sleepy, Offline).
+  - Implemented `LeoGestureController` managing timeouts and voice state transitions.
+- [x] `TSK-074`: **Voice, VAD & Speech Transcript Cleanup**:
+  - Implemented `SpeechCleanupFilter` removing verbal fillers (*"um"*, *"uh"*), resolving spoken self-corrections, and formatting bullet lists.
+  - Implemented `VoiceActivityDetector` with 16kHz mono RMS + ZCR dual-criteria detection and silence hangover.
+- [x] `TSK-075`: **Hardware-Backed Credential Management**:
+  - Implemented `WindowsCredentialService` using Windows `Windows.Security.Credentials.PasswordVault` (Resource: `Leo_Windows_AI_Assistant`).
+- [x] `TSK-076`: **AI Provider Adapters**:
+  - Implemented `GeminiProvider` with HTTP/2 SSE streaming, model selection (`gemini-2.0-flash`), key masking, secret redaction, and `[Leaves your PC]` cloud badges.
+  - Implemented `LocalAiProvider` connecting to Ollama / LM Studio with loopback detection and dynamic `/models` discovery.
+  - Implemented `JsonSettingsService` for `%APPDATA%\Leo\settings.json`.
+- [x] `TSK-077`: **Native WinUI 3 Floating Capsule Dock**:
+  - Created `CapsuleWindow` with `AppWindow` and borderless, non-resizable `OverlappedPresenter`.
+  - Applied DWM glass margins (`DwmExtendFrameIntoClientArea` with `-1` margins) for transparent exterior bounds.
+  - Implemented hardware-accelerated pointer dragging via Win32 `WM_NCLBUTTONDOWN`.
+  - Rendered procedural face with vertical oval eyes, subtle symmetrical pink blush marks, zero mouth, and no blue center dot.
+- [x] `TSK-078`: **Interactive Collapsible Chat Drawer**:
+  - Built high-performance `ScrollViewer` + `StackPanel` layout for chat message history and token streaming.
+  - Connected Enter-to-send, Send/Stop buttons, and dynamic capsule expansion/collapse.
+- [x] `TSK-079`: **Native System Tray Service**:
+  - Implemented `SystemTrayService` using Win32 `Shell_NotifyIconW`.
+  - Subclassed window procedure (`SetWindowSubclass`) to handle tray left-clicks (restore/toggle) and right-clicks (context menu with Restore, Hide, Settings, Quit).
+- [x] `TSK-080`: **Standalone Settings Window**:
+  - Created `SettingsWindow` with masked API key input, connection testing, local endpoint discovery, speech sliders, and reduced-motion toggles.
+- [x] `TSK-081`: **Automated Test Suite**:
+  - Created 18 automated xUnit tests in `Leo.Core.Tests`.
+  - Verified 18/18 passing in 101ms via `dotnet test`.
+- [x] `TSK-082`: **CLI MSBuild Packaging Fix (`MSB4062`)**:
+  - Resolved unpackaged WinUI 3 CLI build issue using `<WindowsPackageType>None</WindowsPackageType>` and `<EnableMsixTooling>true</EnableMsixTooling>`.
+- [x] `TSK-083`: **Standalone Self-Contained Release**:
+  - Published self-contained `win-x64` release and packaged into `release/Leo-Windows-x64-v1.0.0.zip` (63.6 MB) with SHA256 checksums.
+- [x] `TSK-084`: **Developer CLI Automation**:
+  - Authored `scripts/build.ps1`, `scripts/test.ps1`, `scripts/launch.ps1`, and `scripts/package-release.ps1`.
+- [x] `TSK-085`: **Documentation Migration**:
+  - Updated `README.md`, `PRD.md`, `ARCHITECTURE.md`, `MIGRATION.md`, `SECURITY.md`, `TASKS.md`, `CHANGELOG.md`, and `INDEX.md`.
 
 ---
 
-## Phase 6: Ralph Loop & Production Verification (Active)
+## Historical Phases (Archive)
 
-- [x] `TSK-060`: Bootstrap Ralph Loop file contracts (`PRD.md`, `progress.txt`, `prompt.md`) from `LEO_RALPH_LOOP_STARTER_PACK`.
-- [x] `TSK-061`: Integrate Ponytail lazy senior dev principles (`.agents/skills/ponytail/SKILL.md`) and document minimal-solution ladder in `AGENTS.md`.
-- [x] `TSK-062`: Resolve MinGW toolchain dlltool collision in `.cargo/bin` via explicit path prepending in `scripts/check-tauri.ps1` and `scripts/build-installer.ps1`.
-- [x] `TSK-063`: Implement multi-page Vite production build (`app/vite.config.ts`) ensuring `settings.html` (32.68 kB) and `index.html` (17.12 kB) are bundled into `dist/`.
-- [x] `TSK-064`: Implement dedicated standalone Settings window in `app/settings.html` and wire IPC command `open_settings_window` in `app/src/main.ts` and `app/src-tauri/src/lib.rs`.
-- [x] `TSK-065`: Implement native Windows system tray icon with contextual menu (`Open Leo`, `Show/Hide Dock`, `Settings`, `Start with Windows`, `Quit`) and close-to-tray handling.
-- [x] `TSK-066`: Fix blank square panel bug by dynamically sizing drawer heights (Chat: 400x340, Dictate: 400x300, Settings: dedicated window).
-- [x] `TSK-067`: Build and verify production NSIS installer (`Leo-Setup-x64.exe`) and deploy to `C:\Users\Yuvraj\Desktop\Leo-Release\`.
+### Phase 1–3: Research, Licensing & Specs (Completed)
+- [x] `TSK-001` to `TSK-020`: Research, tool inventory, licensing audit, cleanroom isolation.
 
----
-
-## Verification & Test Metrics (100% Passing)
-
-- **Total Unit Tests:** **31 / 31 passing (100%)**
-  - `tests/leo_p0.test.mjs`: 7/7 passing
-  - `tests/leo_extended.test.mjs`: 10/10 passing
-  - `tests/leo_icon.test.mjs`: 8/8 passing
-  - `tests/leo_providers.test.mjs`: 6/6 passing
-- **Frontend Build:** `npm run build` succeeds in 1.49s (multi-page: `index.html` + `settings.html`).
-- **Rust Backend:** Compiles with zero errors targeting `x86_64-pc-windows-gnu`.
-
-
+### Phase 4–6: Initial Vertical Slices & Ralph Loop (Completed / Migrated)
+- [x] `TSK-030` to `TSK-067`: Initial prototype validation, icon generation, and Ralph Loop setup.

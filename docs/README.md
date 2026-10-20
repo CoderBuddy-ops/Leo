@@ -1,70 +1,88 @@
 # Leo — Personal AI Companion for Windows
 
 [![Windows 10/11](https://img.shields.io/badge/Windows-10%2F11%20x64-0078D4?logo=windows)](https://microsoft.com/windows)
-[![Tauri 2](https://img.shields.io/badge/Tauri-2-FFC131?logo=tauri&logoColor=black)](https://tauri.app)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests: 31/31 Passing](https://img.shields.io/badge/Tests-31%2F31%20Passing-brightgreen.svg)](#run-automated-unit-tests)
+[![.NET 8](https://img.shields.io/badge/.NET-8.0%20LTS-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![WinUI 3](https://img.shields.io/badge/WinUI-3%20(Windows%20App%20SDK%201.6)-0078D4?logo=windows)](https://learn.microsoft.com/windows/apps/winui/winui3/)
+[![C# 12](https://img.shields.io/badge/C%23-12.0-239120?logo=csharp)](https://learn.microsoft.com/dotnet/csharp/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](../LICENSE)
+[![Tests: 18/18 Passing](https://img.shields.io/badge/Tests-18%2F18%20Passing-brightgreen.svg)](#run-automated-unit-tests)
 
-**Leo** is a personal-first, on-device AI assistant designed for Windows 10 and 11. It resides in a sleek, compact floating capsule at the top edge of your primary screen, providing immediate voice assistance, universal push-to-talk dictation, safe native automation, and pluggable AI models (Google Gemini and local Ollama / LM Studio).
+**Leo** is a personal-first, on-device AI assistant designed natively for Windows 10 and 11. It resides in a sleek, compact floating capsule dock that hovers gracefully above your active applications, providing immediate AI assistance, streaming conversations, audio reactivity, and pluggable models (Google Gemini and local Ollama / LM Studio) without ever stealing your focus or running a background web server.
 
 ---
 
 ## Key Capabilities
 
-- **Top-Edge Floating Capsule:** Unobtrusive, transparent, always-on-top capsule that never steals active keyboard focus. Features dynamic drawers for Chat (400×340) and Dictate (400×300).
-- **Dedicated Settings Window:** Standalone full-featured settings page (`settings.html`) for configuring Gemini API keys (masked input), testing connection, selecting local AI endpoints, and tuning voice parameters.
-- **Windows System Tray & Background Service:** Native notification-area icon with context menu (`Open Leo`, `Show/Hide Dock`, `Settings`, `Start with Windows`, `Quit`), click to focus, and hide-to-tray on close.
-- **Original Procedural Character ("Leo"):** A dynamic, physics-based 2D canvas character featuring continuous spring-damper gaze tracking, organic saccades, and responsive emotional states with the approved Leo Icon V2 (blush marks, no mouth).
-- **Zero-Localhost Execution:** Packaged release embeds static multi-page assets (`frontendDist: "../dist"`). Does not require Node, Vite, or open local ports in production.
-- **Zero Console Window:** Native GUI subsystem (`#![windows_subsystem = "windows"]`) runs cleanly without background terminal windows.
-- **100% On-Device Dictation (Zero Audio Egress):** Voice Activity Detection (VAD) and speech recognition run entirely on local hardware. Audio never leaves the local machine.
-- **Pluggable AI Models with Egress Warnings:** Seamlessly connects to local model servers (Ollama, LM Studio) or Google Gemini via SSE streaming with mandatory `[Leaves your PC]` cloud badges.
-- **Windows Privacy Protection:** Applies Win32 `WDA_EXCLUDEFROMCAPTURE` to keep Leo invisible during screen shares and recordings.
+- **Compact Floating Capsule Dock:** An unobtrusive, truly transparent, always-on-top dock. Built using WinUI 3 and Win32 Desktop Window Manager (DWM) glass margins with zero webview overhead.
+- **Original Procedural Character ("Leo"):** A dynamic physics-based 2D companion driven by a damped harmonic oscillator spring model (`k=280`, `d=22`). Features organic gaze saccades, nonuniform blinks, breathing float, and the canonical Leo Icon V2 (vertical oval eyes, soft symmetrical pink blush marks, no mouth, and no blue center dot).
+- **Collapsible Chat Drawer:** Integrated expandable drawer with high-performance scrolling message history and real-time streaming response tokens.
+- **Dedicated Settings Window:** Standalone multi-tab settings window for configuring Google Gemini API credentials, selecting local model endpoints, adjusting voice parameters, and enabling reduced-motion accessibility.
+- **Hardware-Backed Credential Storage:** API keys are encrypted at rest using the native Windows `PasswordVault`. Secrets are never stored in plaintext JSON, code bundles, or logs.
+- **Windows System Tray & Subclassed Lifecycle:** Native notification area icon with responsive context menu (`Restore / Open Capsule`, `Hide Capsule`, `Settings...`, `Quit Leo`).
+- **Zero-Localhost / Zero-Webview Execution:** 100% compiled native code. Does not require Node.js, Vite development servers, Electron, or open localhost ports.
+- **100% On-Device Privacy (Zero Audio Egress):** Local Voice Activity Detection (VAD) and audio analysis operate strictly on local hardware. Audio is never uploaded off-device.
+- **Pluggable AI Models with Egress Warnings:** Seamlessly connects to local model servers (Ollama, LM Studio) or Google Gemini with user-visible egress badges (`[Leaves your PC]`).
 
 ---
 
-## Quick Start & Verification
+## Architecture Overview
 
-### Official Windows Installer
-The verified production installer is available in `C:\Users\Yuvraj\Desktop\Leo-Release\`:
 ```
-Leo-Setup-0.1.0-x64.exe (4.06 MB)
-```
-Run the setup wizard to install Leo with Start Menu and Desktop shortcuts and clean uninstaller support.
-
-### Run Automated Unit Tests (100% Passing)
-```powershell
-# 1. P0 Core Dynamics & Cleanroom Logic (7/7 tests)
-node --test tests/leo_p0.test.mjs
-
-# 2. Extended Voice, VAD, IPC & Gesture State Tests (10/10 tests)
-node --test tests/leo_extended.test.mjs
-
-# 3. Canonical Icon V2 Integrity & Determinism (8/8 tests)
-node --test tests/leo_icon.test.mjs
-
-# 4. AI Provider Egress & Gemini SSE Tests (6/6 tests)
-node --test tests/leo_providers.test.mjs
-```
-
-### Build from Source
-```powershell
-# Build multi-page frontend bundle and NSIS Windows installer
-powershell -ExecutionPolicy Bypass -File scripts/build-installer.ps1
+Leo.sln
+├── src/
+│   ├── Leo.Core/               # net8.0: Domain models, character physics, VAD, cleanup
+│   ├── Leo.Application/        # net8.0: Use cases, conversation orchestrator, provider contracts
+│   ├── Leo.Infrastructure/     # net8.0-windows10.0.19041.0: PasswordVault, Gemini SSE, Local AI
+│   └── Leo.App/                # net8.0-windows10.0.19041.0: WinUI 3 views, capsule dock, tray service
+├── tests/
+│   └── Leo.Core.Tests/         # net8.0: xUnit test suite (18 unit tests, 100% passing)
+├── scripts/                    # PowerShell automation (build, test, launch, package)
+├── assets/                     # Approved brand assets (Leo Icon V2, icon.ico)
+└── docs/                       # Complete architecture, PRD, security, and migration documentation
 ```
 
 ---
 
-## Canonical Documentation Index
+## Quick Start & Developer CLI
 
-Explore the consolidated documentation suite in [`docs/`](docs/INDEX.md):
-- [Product Requirements Document (PRD)](PRD.md) — Product vision, personas, JTBD, FR/NFRs, and 13 Ralph Loop tasks.
-- [Engineering & Agent Operating Guide](AGENTS.md) — Ponytail minimal-solution ladder, safety boundaries, verified commands.
-- [System Architecture](docs/architecture/ARCHITECTURE.md) — Multi-page webview, native shell, tray lifecycle, and IPC bridge.
-- [Development & Setup Guide](docs/development/SETUP.md) — Host prerequisites, MinGW GCC 16.2.0 toolchain, dev workflow.
-- [Release & Packaging Guide](docs/release/RELEASE.md) — Installer packaging, NSIS 4.06 MB installer, standalone binary.
-- [Security, Privacy & Network Policy](docs/security/SECURITY.md) — Zero audio egress, key masking, window capture exclusion.
-- [Maintenance & Cleanup Report](docs/maintenance/CLEANUP_REPORT.md) — Measured disk cleanup and documentation audit.
-- [Architecture Decision Records (ADRs)](docs/decisions/0001-foundation.md) — Consequential structural decisions (0001 to 0005).
-- [Third-Party Notices](THIRD_PARTY_NOTICES.md) — Open-source licensing obligations and cleanroom separation.
+### 1. Build Solution
+```powershell
+.\scripts\build.ps1
+# Or via .NET CLI directly:
+dotnet build Leo.sln
+```
+
+### 2. Run Automated Tests
+```powershell
+.\scripts\test.ps1
+# Or via .NET CLI:
+dotnet test tests/Leo.Core.Tests/Leo.Core.Tests.csproj
+```
+
+### 3. Launch Application
+```powershell
+.\scripts\launch.ps1
+```
+
+### 4. Package Standalone Release Bundle
+```powershell
+.\scripts\package-release.ps1
+```
+The self-contained standalone distribution is packaged into `release/`:
+```
+release/
+├── Leo-Windows-x64-v1.0.0.zip   (63.6 MB self-contained with runtime)
+└── SHA256SUMS.txt
+```
+
+---
+
+## Documentation Index
+
+Explore the documentation suite in [`docs/`](INDEX.md):
+- [Product Requirements Document (PRD)](PRD.md) — Product vision, requirements, and acceptance criteria.
+- [System Architecture](architecture/ARCHITECTURE.md) — Native WinUI 3, DWM glass margins, layer boundaries, and Win32 interop.
+- [Migration Ledger](MIGRATION.md) — Complete record of migration from Tauri 2 to C# / .NET 8 / WinUI 3.
+- [Security & Privacy](SECURITY.md) — Hardware-backed `PasswordVault` storage, loopback boundaries, and zero audio egress.
+- [Task Tracking](TASKS.md) — Complete implementation backlog and verification evidence.
+- [Changelog](CHANGELOG.md) — Chronological release and migration notes.

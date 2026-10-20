@@ -1,19 +1,44 @@
-# Upstream reference clone (not product source)
-reference_coucou/
+# .NET / Visual Studio Build Outputs
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+TestResults/
 
-# Dependencies
-node_modules/
+# Windows App SDK / WinUI Generated Files
+Generated Files/
+*.pri
+*.xbf
+
+# Packaging & Release Outputs
+release/
+publish/
 dist/
-app/dist/
 
-# Rust build artifacts
+# Rust / Legacy Build Artifacts
 target/
 src-tauri/target/
 app/src-tauri/target/
 app/src-tauri/gen/
+node_modules/
+app/dist/
 
-# Local configuration and caches
+# Upstream Reference
+reference_coucou/
+
+# Scratch directory
+scratch/
+
+# Secrets, Environment & Logs
 .env
+*.env
 *.log
-.DS_Store
+*.tmp
+*.dump
 Thumbs.db
+.DS_Store

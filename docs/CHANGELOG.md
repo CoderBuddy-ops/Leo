@@ -4,6 +4,40 @@ All notable changes to **Leo** are documented in this file.
 
 ---
 
+## [2.0.0] - 2026-10-20 (C# / .NET 8 / WinUI 3 Master Migration)
+
+### Added
+- **100% Native C# / .NET 8 / WinUI 3 Architecture:**
+  - Migrated Leo from Tauri 2 / Vite to pure C# 12 and WinUI 3 (Windows App SDK 1.6).
+  - Solution structure in `Leo.sln`: `Leo.Core`, `Leo.Application`, `Leo.Infrastructure`, `Leo.App`, and `Leo.Core.Tests`.
+  - Zero browser frontend, zero Vite server, zero webview, zero Node.js process, zero open localhost ports in production.
+- **Native Floating Capsule Dock (`CapsuleWindow`):**
+  - Native borderless WinUI 3 window using `AppWindow` with an `OverlappedPresenter`.
+  - DWM glass margin transparency (`DwmExtendFrameIntoClientArea` with `-1` margins) for transparent exterior bounds.
+  - Direct Win32 pointer dragging via `WM_NCLBUTTONDOWN` message dispatch.
+  - Canonical procedural character design (vertical oval eyes, subtle symmetrical pink blush marks, zero mouth, and no blue center dot).
+  - Continuous 60 FPS spring physics with damped harmonic oscillator (`k=280`, `d=22`), organic gaze saccades via `Mulberry32`, blinks, and breathing float.
+- **Interactive Collapsible Chat Drawer:**
+  - High-performance `ScrollViewer` + `StackPanel` message bubble layout with streaming token append.
+  - Keyboard Enter-to-send, Send/Stop generation buttons, and speech cleanup filter integration.
+- **Standalone Settings Window (`SettingsWindow`):**
+  - Dedicated multi-tab WinUI 3 window for AI provider switching, masked credential entry, local AI endpoint testing (`GET /models`), speech volume sliders, and reduced-motion toggles.
+- **Hardware-Backed Credential Storage (`WindowsCredentialService`):**
+  - Persists API keys encrypted in the operating system's `Windows.Security.Credentials.PasswordVault` under `Leo_Windows_AI_Assistant`.
+  - Secrets are never written to plaintext JSON, source code, or logs.
+- **Native System Tray Service (`SystemTrayService`):**
+  - Win32 `Shell_NotifyIconW` with subclassed window procedure (`SetWindowSubclass`) handling left-click restore/toggle and right-click context menu (`Restore / Open Capsule`, `Hide Capsule`, `Settings...`, `Quit Leo`).
+- **AI Providers:**
+  - `GeminiProvider`: Google Gemini HTTP/2 SSE streaming client with model selection (`gemini-2.0-flash`), key masking, and cloud egress notices.
+  - `LocalAiProvider`: Local Ollama / LM Studio streaming client with loopback verification and dynamic model discovery.
+- **CLI Automation & Packaging:**
+  - `scripts/build.ps1`, `scripts/test.ps1`, `scripts/launch.ps1`, `scripts/package-release.ps1`.
+  - Published self-contained `win-x64` standalone distribution: `release/Leo-Windows-x64-v1.0.0.zip` (63.6 MB) with SHA256 checksums.
+- **Automated Tests:**
+  - 18 unit tests in `Leo.Core.Tests` covering Mulberry32, spring physics, gestures, speech cleanup, VAD, loopback policy, conversation streaming, and settings. 100% passing.
+
+---
+
 ## [0.1.0] - 2026-10-19
 
 ### Added
